@@ -1,0 +1,114 @@
+<!doctype html>
+<!--Quite a few clients strip your Doctype out, and some even apply their own. Many clients do honor your doctype and it can make things much easier if you can validate constantly against a Doctype.-->
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+
+<title>공항 픽업/샌딩 서비스 벅시</title>
+
+<!-- Please use an inliner tool to convert all CSS to inline as inpage or external CSS is removed by email clients -->
+<!-- important in CSS is used to prevent the styles of currently inline CSS from overriding the ones mentioned in media queries when corresponding screen sizes are encountered -->
+
+<style type="text/css">
+body {
+	margin: 0;
+	padding: 0;
+	background: #fff;
+}
+body, table, td, p, a, li, blockquote {
+	-webkit-text-size-adjust: none!important;
+	font-family: sans-serif;
+	font-style: normal;
+	font-weight: 400;
+}
+	#wrap {
+	}
+	.header { position: relative; background: #1d1b57; height: 400px; padding-top:30px; }
+	.content { padding: 0px; }
+	.content p { padding: 30px 30px 0px 30px; font-size: 13pt; color: #485465; line-height: 22pt; letter-spacing: -1px; }
+	.content img { width: 100%; margin: 30px 0px 0px 0px; }
+	.content b { color: #121212; font-weight: 800; }
+	.footer {	}
+	.service-title { padding: 50px 30px 30px 30px; font-size: 12pt; color: #fff; font-weight: 100; }
+	.service-desc { padding: 10px 30px 30px 30px; font-size: 22pt; color: #fff; font-weight: 700; letter-spacing: -1px; }
+	.service-btn { 
+		position: absolute; 
+		left: 5%; 
+		bottom: 70px; 
+		width: 90%; 
+		padding: 15px 0px;
+		background: #fff; 
+		border-radius: 7px;
+		font-weight: 600;
+		color: #121212;
+		text-align: center;
+		-webkit-box-shadow: 0px 0px 61px -6px rgba(0,0,0,0.2);
+		-moz-box-shadow: 0px 0px 61px -6px rgba(0,0,0,0.2);
+		box-shadow: 0px 0px 61px -6px rgba(0,0,0,0.2);
+	}
+	.service-btn2 { 
+		position: relative; 
+		left: 5%;
+		width: 90%; 
+		padding: 15px 0px;
+		margin-top: 50px; 
+		margin-bottom: 100px;
+		background: #1d1b57; 
+		border-radius: 7px;
+		font-weight: 600;
+		color: #fff;
+		text-align: center;
+		-webkit-box-shadow: 0px 0px 61px -6px rgba(0,0,0,0.2);
+		-moz-box-shadow: 0px 0px 61px -6px rgba(0,0,0,0.2);
+		box-shadow: 0px 0px 61px -6px rgba(0,0,0,0.2);
+	}
+	.service-info { 
+		position: absolute; 
+		left: 5%; 
+		bottom: 14px; 
+		width: 90%; 
+		padding: 15px 0px;
+		font-weight: 200;
+		font-size: 10pt; 
+		color: #fff;
+		text-align: center;
+
+	}
+
+</style>
+</head>
+<body>
+	<div id="wrap">
+		<div class="header">
+			<div class="service-title">공항 픽업/샌딩 서비스</div>
+			<div class="service-desc">집 앞에서 공항까지<br/>여유롭게 여행하기</div>
+			<div class="service-btn" onclick="openUrl()">
+				<span>벅시 할인 예약하기</span>
+			</div>
+			<div class="service-info">벅시 이용 금액 중 5,000원이 자동 할인됩니다.</div>
+		</div>
+		<div class="content">
+			<p><b>“공항까지 순간이동 시켜주면 좋겠다”는 생각 해보셨나요?</b> 공항 리무진을 늦지 않게 타기 위해 알람을 수십 개 맞추는 저는 그런 생각 자주 합니다. 그리고 여행이 끝나 한국으로 돌아오는 비행기 안에서도 집에 어떻게 가지? 라는 고민을 하는데요.<br><br>집 앞에서 공항까지, 공항에서 집 앞까지 딱 데려주는 서비스가 있다면 어떨까요? 지금부터 그 서비스에 대해 소개해드릴까 합니다.</p>
+			<img src="../resources/img/buxi_01.png">
+			<p><b>새벽 비행기를 이용하신다면</b><br/><br/>공항 리무진 시간에 비행시간이 맞지 않아 불안한적 많으시죠? 비싼 택시를 이용하기엔 부담되고, 촉박한 비행시간에 불안하고. 당일 새벽 3시부터 밤 11시30분까지 예약이 가능합니다. 시간 구간별로 이용금액에 할증이 붙거나 할인이 될 수 있습니다.</p>
+			<p><b>가족여행을 계획하고 있나요?</b><br/><br/>무거운 짐을 이끌고 아이와, 가족과, 친구와 함께 공항으로 가는 길은 쉽지 만은 않습니다. 편하고 여유롭게 차량 한 대를 빌려서 여행을 떠나보세요. 원하는 시간에 맞춰 친절한 기사님이 운행해드립니다.</p>
+			<img src="../resources/img/buxi_02.png">
+			<p>택시와 버스의 합성어인 벅시는 같은 반환지를 오가는 분들이 원하는 시간대에 함께 이용할 수 있는 라이드 셰어링 서비스입니다. 집 앞에서 공항까지, 공항에서 집 앞까지 여유로운 여행을 즐겨보세요.<br/><br/><b>공항을 오가는 가장 편한 방법, 벅시를 기억하세요.</b></p>
+		</div>
+		<div class="footer">
+			<div class="service-btn2" onclick="openUrl()">
+				<span>벅시 할인 예약하기</span>
+			</div>
+		</div>
+	</div>
+</body>
+
+<script type="text/javascript">
+function openUrl(){
+	alert('https://www.buxikorea.com/reserve/airport?from=WEYS&utm_source=WEYS&utm_medium=partner&utm_campaign=WEYS&utm_content=promo');
+}
+</script>
+
+
+</html>

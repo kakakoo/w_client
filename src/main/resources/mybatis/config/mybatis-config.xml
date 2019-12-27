@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "HTTP://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+		<setting name="mapUnderscoreToCamelCase" value="true" />
+		<setting name="callSettersOnNulls" value="true"/><!-- data가 null일때 속성 설정 -->
+	</settings>
+	 
+	<typeAliases>
+  		<typeAlias type="com.greit.weys.user.UserDetailVO" alias="userDetailVO"/>
+  		
+  		<typeAlias type="com.greit.weys.main.MainRsvVO" alias="mainRsvVO"/>
+  		<typeAlias type="com.greit.weys.main.MainAlarmVO" alias="mainAlarmVO"/>
+  		<typeAlias type="com.greit.weys.main.BannerVO" alias="bannerVO"/>
+  		
+  		<typeAlias type="com.greit.weys.event.EventVO" alias="eventVO"/>
+  		<typeAlias type="com.greit.weys.coupon.CouponVO" alias="couponVO"/>
+  		
+  		<typeAlias type="com.greit.weys.mypage.NoticeVO" alias="noticeVO"/>
+  		<typeAlias type="com.greit.weys.mypage.ProfileVO" alias="profileVO"/>
+  		<typeAlias type="com.greit.weys.mypage.BonusVO" alias="bonusVO"/>
+  		<typeAlias type="com.greit.weys.mypage.AlrmExcVO" alias="alrmExcVO"/>
+  		
+  		<typeAlias type="com.greit.weys.rsv.RsvStoreVO" alias="rsvStoreVO"/>
+  		<typeAlias type="com.greit.weys.rsv.RsvUnitVO" alias="rsvUnitVO"/>
+  		<typeAlias type="com.greit.weys.rsv.RsvInfoVO" alias="rsvInfoVO"/>
+  		<typeAlias type="com.greit.weys.rsv.RsvListVO" alias="rsvListVO"/>
+  		
+	</typeAliases>
+</configuration>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.greit.weys.coupon.CouponDao">
+
+	<!-- 쿠폰 리스트 -->
+	<select id="selectCouponList" resultType="couponVO">
+		/* selectCouponList */
+		SELECT
+			H.ID id
+			, C.COUPON_IMG
+			, C.COUPON_NM
+			, CASE WHEN USE_ST='D' THEN 'D' WHEN H.DUE_DT &lt; NOW() THEN 'E' ELSE 'Y' END AS COUPON_ST
+			, C.COUPON_TP
+			, IFNULL(C.MEMBER_COST, 0) COST
+			, DATE_FORMAT(H.REG_DTTM, '%Y.%m.%d') START_DT
+			, DATE_FORMAT(H.DUE_DT, '%Y.%m.%d') END_DT
+		FROM COUPON_HIST H, COUPON_INFO C
+		WHERE H.USE_ST != 'R'
+			AND H.USR_ID = #{usrId}
+			AND H.COUPON_ID = C.COUPON_ID
+			AND C.COUPON_TP IN ('DD', 'DR', 'P', 'C')
+		ORDER BY CASE WHEN USE_ST='D' OR H.DUE_DT &lt; NOW() THEN 2 ELSE 1 END, H.DUE_DT
+	</select>
+	
+	<!-- 쿠폰 정보 -->
+	<select id="selectCouponInfo" resultType="map">
+		/* selectCouponInfo */
+		SELECT
+			COUPON_ID
+			, DATE_FORMAT(END_DT, '%Y.%m.%d') END_DT
+			, COUPON_NM
+			, COUPON_TP
+			, PERIOD_TP
+			, IFNULL(COUPON_LIMIT, 0) COUPON_LIMIT
+			, IFNULL(MEMBER_COST, 0) MEMBER_COST
+			, IFNULL(MEMBER_PERIOD, 0) MEMBER_PERIOD
+			, IFNULL((SELECT
+				COUNT(CH.COUPON_ID)
+			FROM COUPON_INFO CI, COUPON_HIST CH
+			WHERE CI.COUPON_CODE = #{value}
+				AND CI.COUPON_ID = CH.COUPON_ID), 0) COUPON_CNT
+		FROM COUPON_INFO
+		WHERE COUPON_CODE = #{value}
+			AND SEND_TP = 'I'
+	</select>
+	
+	<!-- 쿠폰 정보 -->
+	<select id="selectCouponInfoGroup" resultType="map">
+		/* selectCouponInfoGroup */
+		SELECT
+			CI.COUPON_ID
+			, DATE_FORMAT(CI.END_DT, '%Y.%m.%d') END_DT
+			, CI.COUPON_NM
+			, CI.COUPON_TP
+			, CI.PERIOD_TP
+			, IFNULL(CI.COUPON_LIMIT, 0) COUPON_LIMIT
+			, IFNULL(CI.MEMBER_COST, 0) MEMBER_COST
+			, IFNULL(CI.MEMBER_PERIOD, 0) MEMBER_PERIOD
+			, CC.USE_ST
+		FROM COUPON_INFO CI, COUPON_CODE CC
+		WHERE CC.CODE = #{value}
+			AND CC.COUPON_ID = CI.COUPON_ID
+			AND CI.SEND_TP = 'I'
+	</select>
+	
+	<!-- 사용 여부 확인 -->
+	<select id="checkCouponUsed" resultType="int">
+		/* checkCouponUsed */
+		SELECT
+			COUNT(CH.COUPON_ID)
+		FROM COUPON_HIST CH, COUPON_INFO CI
+		WHERE CI.COUPON_CODE = #{code}
+			AND CI.COUPON_ID = CH.COUPON_ID
+			AND CH.USR_ID = #{usrId}
+	</select>
+	
+	<!-- 쿠폰 등록 -->
+	<insert id="insertCouponHist">
+		/* insertCouponHist */
+		INSERT INTO COUPON_HIST(
+			USR_ID
+			, COUPON_ID
+			, DUE_DT
+			, REG_DTTM
+			, USE_ST
+		) VALUE (
+			#{usrId}
+			, #{COUPON_ID}
+			, #{dueDt}
+			, NOW()
+			, 'Y'
+		)
+	</insert>
+	
+	<!-- 쿠폰 등록 -->
+	<update id="updateCouponUsed">
+		/* updateCouponUsed */
+		UPDATE COUPON_CODE
+			SET USE_ST = 'Y'
+				, USE_DT = NOW()
+		WHERE CODE = #{value}
+	</update>
+	
+</mapper>

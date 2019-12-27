@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.greit.weys.join.JoinDao">
+	
+	<!-- 이메일 중복 체크  -->
+	<select id="checkEmail" resultType="int">
+	/* checkEmail */
+		SELECT
+			COUNT(USR_EMAIL)
+		FROM USER
+		WHERE USR_ST = 'Y'
+			AND USR_EMAIL = AES_ENCRYPT(#{usrEmail}, SHA2(#{encKey},512))
+	</select>
+	
+	<!-- 사용자 회원 가입  -->
+	<insert id="insertUserInfo" useGeneratedKeys="true" keyProperty="usrId">
+	/* insertUserInfo */
+		INSERT INTO USER(
+			USR_EMAIL
+			, USR_TEL
+			, NATION
+			, AGREE
+			, USR_FROM
+			, FRD_CD
+			, USR_ST
+			, USR_REG_DTTM
+		) VALUES(
+			AES_ENCRYPT(#{usrEmail}, SHA2(#{encKey},512))
+			, AES_ENCRYPT(#{usrTel}, SHA2(#{encKey},512))
+			, #{nation}
+			, #{agree}
+			, #{os}
+			, #{frdCd}
+			, 'Y'
+			, NOW()
+		)
+	</insert>
+	
+	<!-- 사용자 비밀번호 입력  -->
+	<update id="updateUserPw">
+	/* updateUserPw */
+		UPDATE USER
+			SET USR_PW = #{usrPw}
+				, USR_AK = #{usrAk}
+		WHERE USR_ID = #{usrId}
+	</update>
+	
+	<!-- 바코드 중복 체크 -->
+	<select id="selectMemberBarcodeCnt" resultType="int">
+	/* selectMemberBarcodeCnt */
+		SELECT
+			COUNT(MEMBER_ID)
+		FROM MEMBER
+		WHERE BARCODE = #{value}
+	</select>
+	
+	<!-- 멤버십 등록 -->
+	<insert id="insertMemberInfo">
+	/* insertMemberInfo */
+		INSERT INTO MEMBER(
+			USR_ID
+			, BARCODE
+			, BARCODE_URL
+			, START_DT
+			, END_DT
+			, COST
+			, LIMIT_AMNT
+		) VALUES (
+			#{usrId}
+			, #{barcode}
+			, #{barcodeUrl}
+			, NOW()
+			, #{endDt}
+			, #{cost}
+			, #{cost}
+		)
+	</insert>
+	
+	<!-- 멤버십 연장을 -->
+	<insert id="insertMemberActive">
+	/* insertMemberActive */
+		INSERT INTO MEMBER_ACTIVE(
+			MEMBER_ID
+			, TP
+			, REG_DTTM
+			, ADD_COST
+			, USE_COST
+			, DUE_DTTM
+			, PAPER
+		)
+		SELECT
+			M.MEMBER_ID
+			, 'N'
+			, NOW()
+			, M.COST
+			, M.COST
+			, #{endDt}
+			, #{txt}
+		FROM MEMBER M
+		WHERE M.USR_ID = #{usrId}
+	</insert>
+	
+	<!-- 친구 추천인 코드  -->
+	<select id="checkFrdCd" resultType="int">
+	/* checkFrdCd */
+		SELECT
+			COUNT(USR_ID)
+		FROM USER
+		WHERE FRD_CD = #{value}
+	</select>
+	
+	<!-- 친구 추천인 검색  -->
+	<select id="selectFrdId" resultType="int">
+	/* selectFrdId */
+		SELECT
+			USR_ID
+		FROM USER
+		WHERE FRD_CD = #{value}
+	</select>
+	
+	<!-- 친구 추천인 등록  -->
+	<insert id="insertFrdMap">
+	/* insertFrdMap */
+		INSERT INTO FRD_MAP(
+			TARGET_FRD
+			, REQ_FRD
+			, REG_DTTM
+		) VALUES (
+			#{targetUsrId}
+			, #{reqUsrId}
+			, NOW()
+		)
+	</insert>
+	
+	<!-- 친구 추천인 등록 횟수 체크  -->
+	<select id="selectFrdCnt" resultType="int">
+	/* selectFrdCnt */
+		SELECT
+			COUNT(TARGET_FRD)
+		FROM FRD_MAP
+		WHERE TARGET_FRD = #{value}
+	</select>
+	
+	<!-- 친구 추천 쿠폰 등록 -->
+	<insert id="insertFrdCoupon">
+	/* insertFrdCoupon */
+		INSERT INTO COUPON_HIST(
+			USR_ID
+			, COUPON_ID
+			, DUE_DT
+			, REG_DTTM
+			, USE_ST
+		) VALUES (
+			#{targetUsrId}
+			, #{couponId}
+			, CONCAT(#{dutDt}, ' 23:59:59')
+			, NOW()
+			, 'Y'
+		)
+	</insert>
+	
+	<!-- 친구 푸시 정보 -->
+	<select id="selectFrduuid" resultType="map">
+	/* selectFrduuid */
+		SELECT
+			UUID
+			, OS
+		FROM USER_TOKEN
+		WHERE USR_ID = #{value}
+			AND UUID IS NOT NULL
+			AND UUID != ''
+	</select>
+	
+	<!-- 친구추천 이력있는지 조회 -->
+	<select id="selectChkFrdSubmit" resultType="int">
+	/* selectChkFrdSubmit */
+		SELECT
+			TARGET_FRD
+		FROM FRD_MAP
+		WHERE REQ_FRD IN (
+			SELECT
+				USR_ID
+			FROM USER
+			WHERE USR_TEL = (SELECT USR_TEL FROM USER WHERE USR_ID = #{value}))
+	</select>
+	
+	<!-- 회원가입한 이력 확인 -->
+	<select id="selectUsrTelCnt" resultType="int">
+	/* selectUsrTelCnt */
+		SELECT
+			COUNT(USR_ID)
+		FROM USER
+		WHERE USR_TEL = (SELECT USR_TEL FROM USER WHERE USR_ID = #{value})
+			AND USR_ID != #{value}
+	</select>
+	
+	<!-- 회원가입 쿠폰 리스트 -->
+	<select id="selectJoinCouponList" resultType="int">
+	/* selectJoinCouponList */
+		SELECT
+			COUPON_ID
+		FROM COUPON_INFO
+		WHERE COUPON_CODE = #{value}
+			AND START_DT &lt;= NOW()
+			AND END_DT &gt;= NOW()
+	</select>
+	
+</mapper>

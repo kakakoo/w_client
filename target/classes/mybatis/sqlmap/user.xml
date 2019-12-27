@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.greit.weys.user.UserDao">
+	
+	<!-- 등록된 전화번호 확인 -->
+	<select id="checkUsrTel" resultType="int">
+	/* checkUsrTel */
+		SELECT
+			COUNT(USR_ID)
+		FROM USER
+		WHERE USR_ST = 'Y'
+			AND NATION = #{nation}
+			AND USR_TEL = AES_ENCRYPT(#{usrTel}, SHA2(#{encKey},512))
+	</select>
+	
+	<!-- 정보 확인 -->
+	<select id="selectUserLoginInfo" resultType="userDetailVO">
+	/* selectUserLoginInfo */
+		SELECT
+			USR_ID
+			, CAST(AES_DECRYPT(USR_EMAIL, SHA2(#{encKey},512)) AS CHAR) USR_EMAIL
+			, IFNULL(CAST(AES_DECRYPT(USR_NM, SHA2(#{encKey},512)) AS CHAR), '') USR_NM
+			, USR_PW
+			, USR_AK
+		FROM USER
+		WHERE USR_ST = 'Y'
+			AND NATION = #{nation}
+			AND USR_TEL = AES_ENCRYPT(#{usrTel}, SHA2(#{encKey},512))
+	</select>
+	
+	<!-- 사용자 접속로그 입력  -->
+	<insert id="insertConnLog">
+	/* insertConnLog */
+		INSERT INTO USER_LOG_CONN(
+			USR_ID
+			, CONN_DTTM
+		) VALUES (
+			#{value}
+			, now()
+		)
+	</insert>
+	
+	<!-- uuid 있으면 ''값으로  -->
+	<update id="updateUuidBlank">
+	/* updateUuidBlank */
+		UPDATE USER_TOKEN
+			SET UUID = ''
+		WHERE UUID = #{value}
+	</update>
+	
+	<!-- 최근 공지사항 ID  -->
+	<select id="selectLatestNotice" resultType="int">
+	/* selectLatestNotice */
+		SELECT
+			MAX(NOTICE_ID) noticeId
+		FROM NOTICE
+	</select>
+	
+	<!-- 사용자 토큰 정보 입력 -->
+	<insert id="insertTokenInfo">
+	/* insertTokenInfo */
+		INSERT INTO USER_TOKEN(
+			USR_ID
+			, TOKEN_WEYS
+			, TOKEN_EXPIRATION_DTTM
+			, UUID
+			, OS
+			, VERSION
+			, PUSH_ST
+		)
+		SELECT
+			#{usrId}
+			, #{tokenWeys}
+			, #{tokenExpirationDttm}
+			, #{uuid}
+			, #{os}
+			, #{version}
+			, AGREE
+		FROM USER
+		WHERE USR_ID = #{usrId}
+		ON DUPLICATE KEY UPDATE
+			TOKEN_WEYS = #{tokenWeys}
+			, TOKEN_EXPIRATION_DTTM = #{tokenExpirationDttm}
+			, UUID = #{uuid}
+			, OS = #{os}
+			, VERSION = #{version}
+	</insert>
+	
+	<!-- 사용자 토큰 유무 확인  -->
+	<select id="selectCheckToken" resultType="int">
+	/* selectCheckToken */
+		SELECT
+			COUNT(USR_ID)
+		FROM USER_TOKEN
+		WHERE TOKEN_WEYS = #{value}
+			AND TOKEN_EXPIRATION_DTTM &gt; NOW()
+	</select>
+	
+	<!-- 사용자 정보 가져오기  -->
+	<select id="selectUserInfo" resultType="userDetailVO">
+	/* selectUserInfo */
+		SELECT
+			U.USR_ID
+			, IFNULL(CAST(AES_DECRYPT(U.USR_NM, SHA2(#{encKey},512)) AS CHAR), '') USR_NM
+			, CAST(AES_DECRYPT(U.USR_EMAIL, SHA2(#{encKey},512)) AS CHAR) USR_EMAIL
+			, U.USR_AK
+			, T.UUID uuid
+			, T.OS os
+		FROM USER U
+		INNER JOIN USER_TOKEN T ON U.USR_ID = T.USR_ID
+		LEFT OUTER JOIN MEMBER M ON U.USR_ID = M.USR_ID
+			AND M.END_DT &gt;= NOW()
+		WHERE U.USR_ST = 'Y'
+			AND U.USR_ID = #{usrId}
+	</select>
+	
+	<!-- 사용자 아이디 찾기 -->
+	<select id="selectUsrIdForTel" resultType="int">
+	/* selectUsrIdForTel */
+		SELECT
+			USR_ID
+		FROM USER
+		WHERE USR_ST = 'Y'
+			AND NATION = #{nation}
+			AND USR_TEL = AES_ENCRYPT(#{usrTel}, SHA2(#{encKey},512))
+	</select>
+	
+	<!-- 비밀번호 변경 -->
+	<update id="updateUsrPasswd">
+	/* updateUsrPasswd */
+		UPDATE USER
+			SET USR_PW = #{usrPw}
+		WHERE USR_ID = #{usrId}
+	</update>
+	
+	<!-- 이름, 주민번호 업데이트 -->
+	<update id="updateUsrCertify">
+	/* updateUsrCertify */
+		UPDATE USER
+			SET USR_NM = AES_ENCRYPT(#{usrNm}, SHA2(#{key},512))
+				, USR_NM_ID = AES_ENCRYPT(#{usrNmId}, SHA2(#{key},512))
+				, USR_GNDR = AES_ENCRYPT(#{gndr}, SHA2(#{key},512))
+				, USR_BIRTH = AES_ENCRYPT(#{birth}, SHA2(#{key},512))
+				, FORIGN = 'N'
+		WHERE USR_ID = #{usrId}
+	</update>
+	
+	<!-- 로그아웃  -->
+	<update id="updateLogout" >
+	/* updateLogout */
+		UPDATE USER_TOKEN
+			SET TOKEN_WEYS = ''
+				, UUID = ''
+		WHERE USR_ID = #{value}
+	</update>
+	
+	<!-- 버전 확인  -->
+	<select id="getVersionInfo" resultType="map">
+	/* getVersionInfo */
+		SELECT
+			VERSION version
+			, URL url
+			, MARKET market
+			, (SELECT ST FROM SERVER_ST WHERE TYPE='E') web
+		FROM VERSION
+		WHERE OS = #{value}
+	</select>
+	
+	<!-- 에러 등록 -->
+	<insert id="insertErrLog">
+	/* insertErrLog */
+		INSERT INTO ERR_LOG(
+			URL
+			, REQ
+			, MSG
+			, USR_ID
+			, REG_DTTM
+		) VALUES (
+			#{url}
+			, #{req}
+			, #{msg}
+			, #{usrId}
+			, NOW()
+		)
+	</insert>
+	
+	<!-- 토큰 확인 -->
+	<select id="selectCheckCopToken" resultType="int">
+	/* selectCheckCopToken */
+		SELECT
+			COUNT(COP_ID)
+		FROM COP
+		WHERE TOKEN = #{value}
+	</select>
+	
+	<!-- 채널 사용자 정보 -->
+	<select id="getUsrChannelInfo" resultType="map">
+	/* getUsrChannelInfo */
+		SELECT
+			IFNULL(CAST(AES_DECRYPT(USR_NM, SHA2(#{encKey},512)) AS CHAR), '') USR_NM
+			, USR_ID
+		FROM USER U
+		WHERE U.USR_ST = 'Y'
+			AND U.NATION = #{nation}
+			AND U.USR_TEL = AES_ENCRYPT(#{tel}, SHA2(#{encKey},512))
+	</select>
+	
+	<!-- 채널 사용자 정보 -->
+	<select id="selectRsvChannelInfo" resultType="map">
+	/* selectRsvChannelInfo */
+		SELECT
+			RSV_NO
+			, RSV_AMNT
+			, UNIT
+			, GET_AMNT
+			, RSV_DT
+			, RSV_TM
+		FROM RSV
+		WHERE RSV_ST IN ('S', 'R')
+			<if test='usrId != null'>
+				AND USR_ID = #{usrId}
+			</if>
+			<if test='usrId == null'>
+				AND RSV_TEL = AES_ENCRYPT(#{tel}, SHA2(#{encKey},512))
+			</if>
+		ORDER BY RSV_ID DESC
+		LIMIT 1
+	</select>
+	
+	<!-- 비회원 정보 등록 -->
+	<insert id="insertUnknown" useGeneratedKeys="true" keyProperty="unKey">
+	/* insertUnknown */
+		INSERT INTO UNKNOWN_TOKEN(
+			UUID
+			, OS
+			, PUSH_ST
+			, VERSION
+		) VALUES (
+			 #{uuid}
+			, #{os}
+			, #{agree}
+			, #{version}
+		)
+	</insert>
+	
+	<!-- 비회원 정보 등록 -->
+	<update id="updateUnknown">
+	/* updateUnknown */
+		UPDATE UNKNOWN_TOKEN
+			SET UUID = #{uuid}
+		WHERE UN_KEY = #{unKey}
+	</update>
+	
+	<!-- 비회원 정보 등록 -->
+	<insert id="insertUserUnknown" useGeneratedKeys="true" keyProperty="unKey">
+	/* insertUserUnknown */
+		INSERT INTO UNKNOWN_TOKEN(
+			UUID
+			, OS
+			, PUSH_ST
+			, VERSION
+		)
+		SELECT
+			UUID
+			, OS
+			, PUSH_ST
+			, VERSION
+		FROM USER_TOKEN
+		WHERE USR_ID = #{usrId}
+	</insert>
+	
+	<!-- 비회원 정보 제거 -->
+	<delete id="deleteUnknownToken">
+	/* deleteUnknownToken */
+		DELETE FROM UNKNOWN_TOKEN
+		WHERE UN_KEY = #{value}
+	</delete>
+	
+	<!--unkey 확인 -->
+	<select id="selectUnKey" resultType="int">
+	/* selectUnKey */
+		SELECT
+			UN_KEY
+		FROM UNKNOWN_TOKEN
+		WHERE UUID = #{value}
+	</select>
+	
+	<!-- tutorial 이미지 -->
+	<select id="selectTutorial" resultType="map">
+	/* selectTutorial */
+		SELECT
+			IMG img
+		FROM TUTORIAL
+		WHERE TYPE = 'T'
+		LIMIT 1
+	</select>
+	
+	<!-- usrid -->
+	<select id="selectUsrList" resultType="int">
+	/* selectUsrList */
+		SELECT
+			USR_ID
+		FROM USER
+		WHERE USR_ST = 'Y'
+			AND FRD_CD IS NULL
+	</select>
+	
+	<!-- usrid -->
+	<update id="updateUsrFrdCd">
+	/* updateUsrFrdCd */
+		UPDATE USER
+			SET FRD_CD = #{frdCd}
+		WHERE USR_ID = #{usrId}
+	</update>
+	
+	<!-- 동일한 사용자 정보 체크 -->
+	<select id="selectCheckCertify" resultType="string">
+	/* selectCheckCertify */
+		SELECT
+			CONCAT(LEFT(CAST(AES_DECRYPT(USR_TEL, SHA2(#{encKey},512)) AS CHAR), 3), '-****-', RIGHT(CAST(AES_DECRYPT(USR_TEL, SHA2(#{encKey},512)) AS CHAR), 4))
+		FROM USER
+		WHERE USR_NM = AES_ENCRYPT(#{usrNm}, SHA2(#{encKey},512))
+			AND USR_NM_ID = AES_ENCRYPT(#{usrNmId}, SHA2(#{encKey},512))
+			AND USR_ST = 'Y'
+		LIMIT 1
+	</select>
+	
+	<!-- 회원가입 무료 쿠폰 -->
+	<insert id="insertJoinCoupon">
+	/* insertJoinCoupon */
+		INSERT INTO COUPON_HIST(
+			USR_ID
+			, COUPON_ID
+			, DUE_DT
+			, USE_ST
+			, REG_DTTM
+		) VALUES (
+			#{usrId}
+			, #{couponId}
+			, #{dueDt}
+			, 'Y'
+			, NOW()
+		)
+	</insert>
+	
+	<!-- 기존 회원 쿠폰 발급 -->
+	<select id="selectUsrNewCoupon" resultType="int">
+	/* selectUsrNewCoupon */
+		SELECT
+			USR_ID
+		FROM USER
+		WHERE USR_ID NOT IN (
+		SELECT
+			USR_ID
+		FROM COUPON_HIST
+		WHERE COUPON_ID IN (
+		SELECT
+			COUPON_ID
+		FROM COUPON_INFO
+		WHERE COUPON_CODE = 'WEYSJOINPARTYTONIGHY'))
+			AND USR_ST = 'Y'
+	</select>
+	
+	<!-- sms 발송 내역 저장 -->
+	<insert id="insertSmsSend">
+	/* insertSmsSend */
+		INSERT INTO SMS_SEND(
+			NATION
+			, TEL
+			, TXT
+			, RES
+			, REG_DTTM
+		) VALUES (
+			#{nation}
+			, AES_ENCRYPT(#{tel}, SHA2(#{encKey},512))
+			, #{txt}
+			, #{res}
+			, NOW()
+		)
+	</insert>
+	
+	<!-- 쿠폰 업데이트 -->
+	<update id="updateEventCnt">
+	/* updateEventCnt */
+		UPDATE EVENT
+			SET EVENT_CNT = EVENT_CNT + #{eventCnt}
+		WHERE COUPON_ID = #{couponId}
+	</update>
+	
+	<!-- API 로그 등록 -->
+	<insert id="insertApiLog">
+	/* insertApiLog */
+		INSERT INTO API_LOG(
+			URL
+			, METHOD
+			, USR_ID
+			, REG_DTTM
+		) VALUES (
+			#{url}
+			, #{method}
+			, #{usrId}
+			, NOW()
+		)
+	</insert>
+	
+</mapper>

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.greit.weys.event.EventDao">
+	
+	<!-- 이벤트 리스트 -->
+	<select id="selectEventListUsr" resultType="eventVO">
+	/* selectEventListV7 */
+		SELECT
+			E.EVENT_ID
+			, E.EVENT_TITLE
+			, E.EVENT_BNR
+			, CASE WHEN E.END_DT &lt; DATE_FORMAT(NOW(), '%Y.%m.%d') THEN 'D' WHEN EU.USR_ID IS NOT NULL THEN 'U' ELSE E.EVENT_ST END EVENT_ST
+			, DATE_FORMAT(E.START_DT, '%y.%m.%d') START_DT
+			, DATE_FORMAT(E.END_DT, '%y.%m.%d') END_DT
+		FROM EVENT E
+		LEFT OUTER JOIN EVENT_USER EU ON E.EVENT_ID = EU.EVENT_ID
+			AND EU.USR_ID = #{usrId}
+		WHERE E.START_DT &lt;= NOW()
+			AND E.EVENT_ST = 'Y'
+		ORDER BY END_DT DESC
+	</select>
+	
+	<!-- 이벤트 리스트 -->
+	<select id="selectEventList" resultType="eventVO">
+	/* selectEventList */
+		SELECT
+			E.EVENT_ID
+			, E.EVENT_TITLE
+			, E.EVENT_BNR
+			, CASE WHEN E.END_DT &lt; DATE_FORMAT(NOW(), '%Y.%m.%d') THEN 'D' ELSE E.EVENT_ST END EVENT_ST
+			, DATE_FORMAT(E.START_DT, '%y.%m.%d') START_DT
+			, DATE_FORMAT(E.END_DT, '%y.%m.%d') END_DT
+		FROM EVENT E
+		WHERE E.START_DT &lt;= NOW()
+			AND E.EVENT_ST = 'Y'
+		ORDER BY END_DT DESC
+	</select>
+	
+	<!-- 이벤트 -->
+	<select id="selectEvent" resultType="eventVO">
+	/* selectEvent */
+		SELECT
+			E.EVENT_ID
+			, E.EVENT_TITLE
+			, CASE WHEN EU.USR_ID IS NULL THEN 0 ELSE 1 END used
+		FROM EVENT E
+		LEFT OUTER JOIN EVENT_USER EU ON E.EVENT_ID = EU.EVENT_ID
+			AND EU.USR_ID = #{usrId}
+		WHERE E.EVENT_ID = #{eventId}
+	</select>
+	
+	<!-- 이벤트 페이지 -->
+	<select id="selectEventPage" resultType="string">
+	/* selectEventPage */
+		SELECT
+			EVENT_DESC
+		FROM EVENT
+		WHERE EVENT_ID = #{value}
+	</select>
+	
+	<!-- 이벤트 참여여부 확인 -->
+	<select id="selectJoinCnt" resultType="int">
+	/* selectJoinCnt */
+		SELECT
+			COUNT(USR_ID)
+		FROM EVENT_JOIN
+		WHERE EVENT_ID = #{eventId}
+			AND USR_ID = #{usrId}
+	</select>
+	
+	<!-- 이벤트 참여여부 확인 -->
+	<select id="selectEventUsed" resultType="int">
+	/* selectEventUsed */
+		SELECT
+			COUNT(C.COUPON_ID)
+		FROM EVENT E, COUPON_HIST C
+		WHERE E.EVENT_ID = #{eventId}
+			AND E.COUPON_ID = C.COUPON_ID
+			AND C.USR_ID = #{usrId}
+	</select>
+	
+	<!-- 이벤트 참여-->
+	<insert id="insertJoinEvent">
+	/* insertJoinEvent */
+		INSERT INTO EVENT_JOIN(
+			EVENT_ID
+			, USR_ID
+			, EVENT_VAL
+			, REG_DTTM
+		) VALUES (
+			#{eventId}
+			, #{usrId}
+			, #{eventUrl}
+			, NOW()
+		)
+	</insert>
+	
+	<!-- 이벤트 참여-->
+	<insert id="insertEventCoupon">
+	/* insertEventCoupon */
+		INSERT INTO COUPON_HIST(
+			USR_ID
+			, COUPON_ID
+			, DUE_DT
+			, USE_ST
+			, REG_DTTM
+		)
+		SELECT
+			#{usrId}
+			, C.COUPON_ID
+			, C.END_DT
+			, 'Y'
+			, NOW()
+		FROM EVENT E, COUPON_INFO C
+		WHERE E.EVENT_ID = #{eventId}
+			AND E.COUPON_ID = C.COUPON_ID
+	</insert>
+
+	<!-- 이벤트 참여-->
+	<update id="updateEventCnt">
+	/* updateEventCnt */
+		UPDATE EVENT
+			SET EVENT_CNT = EVENT_CNT + #{used}
+		WHERE EVENT_ID = #{eventId}
+	</update>
+	
+	<!-- 이벤트 참여 수 -->
+	<select id="selectEventCnt" resultType="int">
+	/* selectEventCnt */
+		SELECT
+			EVENT_CNT
+		FROM EVENT
+		WHERE EVENT_ID = #{value}
+	</select>
+	
+</mapper>

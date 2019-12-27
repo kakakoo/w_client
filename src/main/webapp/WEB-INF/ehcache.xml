@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd" updateCheck="false">
+	
+	<defaultCache
+		eternal="false"
+		maxElementsInMemory="100"
+		overflowToDisk="false"
+		diskPersistent="false"
+		timeToIdleSeconds="0"
+		timeToLiveSeconds="600"
+		memoryStoreEvictionPolicy="LRU"	/>
+	
+	<cache 
+		name="serverSt"
+		eternal="false"
+		maxElementsInMemory="100"
+		overflowToDisk="false"
+		diskPersistent="false"
+		timeToIdleSeconds="0"
+		timeToLiveSeconds="3600"
+		memoryStoreEvictionPolicy="LRU"	/>
+		
+	<cache 
+		name="bankList"
+		eternal="false"
+		maxElementsInMemory="100"
+		overflowToDisk="false"
+		diskPersistent="false"
+		timeToIdleSeconds="0"
+		timeToLiveSeconds="3600"
+		memoryStoreEvictionPolicy="LRU"	/>
+	
+	<cache 
+		name="eventList"
+		eternal="false"
+		maxElementsInMemory="100"
+		overflowToDisk="false"
+		diskPersistent="false"
+		timeToIdleSeconds="0"
+		timeToLiveSeconds="3600"
+		memoryStoreEvictionPolicy="LRU"	/>
+	
+	<cache 
+		name="mainUnit"
+		eternal="false"
+		maxElementsInMemory="100"
+		overflowToDisk="false"
+		diskPersistent="false"
+		timeToIdleSeconds="0"
+		timeToLiveSeconds="60"
+		memoryStoreEvictionPolicy="LRU"	/>
+	
+	<cache 
+		name="forgNatInfo"
+		eternal="false"
+		maxElementsInMemory="100"
+		overflowToDisk="false"
+		diskPersistent="false"
+		timeToIdleSeconds="0"
+		timeToLiveSeconds="3600"
+		memoryStoreEvictionPolicy="LRU"	/>
+		
+	<cache 
+		name="mainExc"
+		eternal="false"
+		maxElementsInMemory="100"
+		overflowToDisk="false"
+		diskPersistent="false"
+		timeToIdleSeconds="0"
+		timeToLiveSeconds="60"
+		memoryStoreEvictionPolicy="LRU"	/>
+	
+	<cache 
+		name="unitExc"
+		eternal="false"
+		maxElementsInMemory="100"
+		overflowToDisk="false"
+		diskPersistent="false"
+		timeToIdleSeconds="0"
+		timeToLiveSeconds="60"
+		memoryStoreEvictionPolicy="LRU"	/>
+	
+	
+</ehcache>

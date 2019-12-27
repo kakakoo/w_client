@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.greit.weys.mypage.MypageDao">
+	
+	<!-- 비밀번호 확인  -->
+	<select id="selectUsrPw" resultType="string">
+	/* selectUsrPw */
+		SELECT
+			USR_PW
+		FROM USER
+		WHERE USR_ID = #{value}
+	</select>
+	
+	<!-- 사용자 탈퇴 -->
+	<update id="updateUserDeleteToken">
+	/* updateUserDeleteToken */
+		UPDATE USER_TOKEN
+		SET TOKEN_WEYS = ''
+			, UUID = ''
+			, PUSH_ST = 'N'
+		WHERE USR_ID = #{value}
+	</update>
+	
+	<!-- 사용자 탈퇴 -->
+	<update id="updateUserDelete">
+	/* updateUserDelete */
+		UPDATE USER
+			SET USR_UNREG_DTTM = NOW()
+				, USR_ST = 'N'
+				, USR_NICK = '탈퇴한 회원'
+				, USR_PW = ''
+				, USR_POINT = 0
+			WHERE USR_ID = #{value}
+	</update>
+	
+	<!-- 공지사항 리스트 가져오기  -->
+	<select id="selectNoticeList" resultType="noticeVO">
+	/* selectNoticeList */
+		SELECT
+			NOTICE_ID id
+			, NOTICE_TITLE title
+			, NOTICE_CONTENT content
+			, DATE_FORMAT(NOTICE_REG_DTTM, '%y.%m.%d') dttm
+		FROM NOTICE
+		WHERE NOTICE_ST = 'Y'
+		ORDER BY NOTICE_ID DESC
+	</select>
+	
+	<!-- 공지사항 상세보기  -->
+	<select id="selectNotice" resultType="noticeVO">
+	/* selectNotice */
+		SELECT
+			NOTICE_TITLE title
+			, NOTICE_CONTENT content
+			, DATE_FORMAT(NOTICE_REG_DTTM, '%y.%m.%d') dttm
+		FROM NOTICE
+		WHERE NOTICE_ID = #{value}
+	</select>
+	
+	<!-- 비밀번호 변경  -->
+	<update id="updateUsrPw">
+	/* updateUsrPw */
+		UPDATE USER
+			SET USR_PW = #{newPw}
+		WHERE USR_ID = #{usrId}
+	</update>
+	
+	<!-- 회원 정보 -->
+	<select id="selectUserInfoV7" resultType="profileVO">
+	/* selectUserInfoV7 */
+		SELECT
+			AGREE
+			, CAST(AES_DECRYPT(USR_EMAIL, SHA2(#{encKey},512)) AS CHAR) USR_EMAIL
+			, CAST(AES_DECRYPT(USR_NM, SHA2(#{encKey},512)) AS CHAR) USR_NM
+			, CAST(AES_DECRYPT(USR_TEL, SHA2(#{encKey},512)) AS CHAR) USR_TEL
+		FROM USER
+		WHERE USR_ID = #{usrId}
+	</select>
+	
+	<!-- 회원 정보 -->
+	<select id="selectUserInfo" resultType="profileVO">
+	/* selectUserInfo */
+		SELECT
+			CASE WHEN U.FORIGN = 'Y' THEN CONCAT(CAST(AES_DECRYPT(U.GIV_NM, SHA2(#{encKey},512)) AS CHAR), ' ', CAST(AES_DECRYPT(U.SUR_NM, SHA2(#{encKey},512)) AS CHAR))
+				ELSE CAST(AES_DECRYPT(U.USR_NM, SHA2(#{encKey},512)) AS CHAR) END USR_NM
+			, CAST(AES_DECRYPT(U.USR_TEL, SHA2(#{encKey},512)) AS CHAR) USR_TEL
+			, CAST(AES_DECRYPT(U.USR_EMAIL, SHA2(#{encKey},512)) AS CHAR) USR_EMAIL
+			, U.FORIGN
+			, U.NATION
+			, M.BARCODE QR_CODE
+			, M.BARCODE_URL QR_IMG
+		FROM USER U, MEMBER M
+		WHERE U.USR_ID = #{usrId}
+			AND U.USR_ID = M.USR_ID
+	</select>
+	
+	<!-- 전화번호 중복 확인 -->
+	<select id="checkUsrTel" resultType="int">
+	/* checkUsrTel */
+		SELECT
+			COUNT(USR_ID)
+		FROM USER
+		WHERE USR_ST = 'Y'
+			AND USR_TEL = AES_ENCRYPT(#{usrTel}, SHA2(#{encKey},512))
+			AND NATION = #{nation}
+	</select>
+	
+	<!-- 전화번호 변경 -->
+	<update id="updateUsrTel">
+	/* updateUsrTel */
+		UPDATE USER
+			SET USR_TEL = AES_ENCRYPT(#{usrTel}, SHA2(#{encKey},512))
+				, NATION = #{nation}
+		WHERE USR_ID = #{usrId}			
+	</update>
+	
+	<!-- 이메일 중복 확인 -->
+	<select id="checkUsrEmail" resultType="int">
+	/* checkUsrEmail */
+		SELECT
+			COUNT(USR_EMAIL)
+		FROM USER
+		WHERE USR_ST = 'Y'
+			AND USR_EMAIL = AES_ENCRYPT(#{usrEmail}, SHA2(#{encKey},512))
+	</select>
+	
+	<!-- 이메일 변경 -->
+	<update id="updateUsrEmail">
+	/* updateUsrEmail */
+		UPDATE USER
+			SET USR_EMAIL = AES_ENCRYPT(#{usrEmail}, SHA2(#{encKey},512))
+		WHERE USR_ID = #{usrId}			
+	</update>
+	
+	<!-- 마케팅 수신동의 변경 -->
+	<update id="updateUsrPush">
+	/* updateUsrPush */
+		UPDATE USER_TOKEN
+			SET PUSH_ST = #{agree}
+		WHERE USR_ID = #{usrId}			
+	</update>
+	
+	<!-- 마케팅 수신동의 변경 -->
+	<update id="updateUsrAgree">
+	/* updateUsrAgree */
+		UPDATE USER
+			SET AGREE = #{agree}
+		WHERE USR_ID = #{usrId}			
+	</update>
+	
+	<!-- 보너스 정보 -->
+	<select id="selectBonusInfo" resultType="bonusVO">
+	/* selectBonusInfo */
+		SELECT
+			BARCODE
+			, BARCODE_URL
+		FROM MEMBER
+		WHERE USR_ID = #{value}
+	</select>
+	
+	<!-- 마케팅 수신동의 변경 -->
+	<update id="updateUnknownAgree">
+	/* updateUnknownAgree */
+		UPDATE UNKNOWN_TOKEN
+			SET PUSH_ST = #{agree}
+		WHERE UN_KEY = #{unKey}			
+	</update>
+	
+	<!-- 이벤트 갯수 -->
+	<select id="selectEventCnt" resultType="int">
+	/* selectEventCnt */
+		SELECT
+			COUNT(EVENT_ID)
+		FROM EVENT
+		WHERE EVENT_ST = 'Y'
+			AND START_DT &lt; NOW()
+			AND END_DT &gt; NOW()
+	</select>
+	
+	<!-- 이벤트 갯수 -->
+	<select id="selectEventCntUsr" resultType="int">
+	/* selectEventCntUsr */
+		SELECT
+			COUNT(EVENT_ID)
+		FROM EVENT
+		WHERE EVENT_ST = 'Y'
+			AND START_DT &lt; NOW()
+			AND END_DT &gt; NOW()
+			AND EVENT_ID NOT IN (
+			SELECT
+				E.EVENT_ID
+			FROM EVENT E, EVENT_USER U
+			WHERE E.EVENT_ST = 'Y'
+				AND E.START_DT &lt; NOW()
+				AND E.END_DT &gt; NOW()
+				AND E.EVENT_ID = U.EVENT_ID
+				AND U.USR_ID = #{value})
+	</select>
+	
+	<!-- 마케팅 수신 동의 여부 -->
+	<select id="selectUsrAgree" resultType="string">
+	/* selectUsrAgree */
+		SELECT
+			PUSH_ST
+		FROM USER_TOKEN
+		WHERE USR_ID = #{value}
+	</select>
+	
+	<!-- 마케팅 수신 동의 여부 -->
+	<select id="selectUnKnownAgree" resultType="string">
+	/* selectUnKnownAgree */
+		SELECT
+			PUSH_ST
+		FROM UNKNOWN_TOKEN
+		WHERE UN_KEY = #{value}
+	</select>
+	
+	<!-- 사용가능 쿠폰 갯수 -->
+	<select id="selectCouponCnt" resultType="int">
+	/* selectCouponCnt */
+		SELECT
+			IFNULL(COUNT(ID), 0)
+		FROM COUPON_HIST
+		WHERE USR_ID = #{value}
+			AND USE_ST = 'Y'
+			AND DUE_DT &gt; NOW()
+	</select>
+	
+	<!-- 친구 추천코드 -->
+	<select id="selectMyFrdCd" resultType="map">
+	/* selectMyFrdCd */
+		SELECT
+			U.FRD_CD
+			, IFNULL(COUNT(F.REQ_FRD), 0) FRD_CNT
+		FROM USER U
+		LEFT OUTER JOIN FRD_MAP F ON U.USR_ID = F.REQ_FRD
+		WHERE U.USR_ID = #{value}
+	</select>
+	
+	<!-- 친구 추천코드 -->
+	<select id="selectMyFrdCnt" resultType="int">
+	/* selectMyFrdCnt */
+		SELECT
+			COUNT(TARGET_FRD)
+		FROM FRD_MAP
+		WHERE TARGET_FRD = #{value}
+	</select>
+	
+	<!-- 유저 키 찾기 -->
+	<select id="selectUsrId" resultType="int">
+	/* selectUsrId */
+		SELECT
+			USR_ID
+		FROM USER
+		WHERE USR_AK = #{value}
+	</select>
+	
+	<!-- 환율 알람 리스트 -->
+	<select id="selectExcList" resultType="alrmExcVO">
+	/* selectExcList */
+		SELECT
+			U.UEA_ID
+			, U.UNIT
+			, U.ALRM_RATE
+			, U.ALRM_ST
+			, E.BASIC_RATE
+		FROM USER_EXC_ALRM U
+		INNER JOIN (
+				SELECT
+					UNIT
+					, BASIC_RATE
+				FROM EXCHANGE_RATE
+				WHERE DTTM = (
+				SELECT
+					MAX(DTTM)
+				FROM EXCHANGE_RATE)
+			) E ON U.UNIT = E.UNIT
+		WHERE U.USR_ID = #{value}
+	</select>
+	
+	<!-- 환율 알람 등록 -->
+	<insert id="insertAlrmExc">
+	/* insertAlrmExc */
+		INSERT INTO USER_EXC_ALRM(
+			USR_ID
+			, UNIT
+			, ALRM_RATE
+			, ALRM_ST
+			, REG_DTTM
+		) VALUES (
+			#{usrId}
+			, #{unit}
+			, #{alrmRate}
+			, 'Y'
+			, NOW()
+		)
+	</insert>
+	
+	<!-- 환율 알람 삭제 -->
+	<delete id="deleteAlrmExc">
+	/* deleteAlrmExc */
+		DELETE FROM USER_EXC_ALRM
+		WHERE UEA_ID = #{ueaId}
+			AND USR_ID = #{usrId}
+	</delete>
+	
+	<!-- 환율 알람 변경 -->
+	<update id="updateAlrmExc">
+	/* updateAlrmExc */
+		UPDATE USER_EXC_ALRM
+			SET UNIT = #{unit}
+				, ALRM_RATE = #{alrmRate}
+				, ALRM_ST = #{alrmSt}
+		WHERE UEA_ID = #{ueaId}
+			AND USR_ID = #{usrId}
+	</update>
+	
+</mapper>

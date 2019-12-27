@@ -1,0 +1,267 @@
+<html lang="UTF-8">
+<head>
+<link rel="icon" href="./img/favicon.png">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes"> 
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?clientId=uqRtVc6VmEpLHJglFVnO"></script>
+<script>
+function fnMove(seq){
+	if(seq == 4){
+		window.open("https://www.facebook.com/weysapp");
+		return;
+	}
+	var offset = $("#div" + seq).offset();
+	if(seq == 1)
+		offset.top = 100;
+	$('html, body').animate({scrollTop : offset.top - 100}, 400);
+}
+$(function(){
+
+var filter = "win16|win32|win64|mac|macintel";
+ 
+if(navigator.platform){
+	if(0 > filter.indexOf(navigator.platform.toLowerCase())){
+		location.href='https://weysapp.com/main1.html';
+	}
+}
+
+var map = new naver.maps.Map('map', {
+    center: new naver.maps.LatLng(37.5192916, 127.03130239999996),
+    zoom: 10
+});
+
+var marker = new naver.maps.Marker({
+    position: new naver.maps.LatLng(37.5192916, 127.03130239999996),
+    map: map,
+    icon : {
+    	url: './img/map_pin.png',
+        size: new naver.maps.Size(73, 99),
+        origin: new naver.maps.Point(0, 0),
+        anchor: new naver.maps.Point(11, 35)
+    }
+});
+
+	var slideCount = $('#slider ul li').length;
+	var slideWidth = $('#slider ul li').width();
+	var slideHeight = $('#slider ul li').height();
+	var sliderUlWidth = slideCount * slideWidth;
+	
+	$('#slider').css({ width: slideWidth, height: slideHeight });
+	
+	$('#slider ul').css({ width: sliderUlWidth, marginLeft: - slideWidth });
+	
+    $('#slider ul li:last-child').prependTo('#slider ul');
+	$('#slider').css('width', '80%');
+	$('#slider').css('margin-left', '9%');
+
+    function moveLeft() {
+        $('#slider ul').animate({
+            left: + slideWidth
+        }, 200, function () {
+            $('#slider ul li:last-child').prependTo('#slider ul');
+            $('#slider ul').css('left', '');
+        });
+    };
+
+    function moveRight() {
+        $('#slider ul').animate({
+            left: - slideWidth
+        }, 200, function () {
+            $('#slider ul li:first-child').appendTo('#slider ul');
+            $('#slider ul').css('left', '');
+        });
+    };
+
+    $('a.control_prev').click(function (e) {
+    	e.preventDefault();
+        moveLeft();
+    });
+
+    $('a.control_next').click(function (e) {
+    	e.preventDefault();
+        moveRight();
+    });
+});
+	
+</script>
+<style type="text/css">
+@font-face{font-family:cjDediLignt;src:url(./font/NOTOSANSCJKKR-DEMILIGHT.OTF);}
+@font-face{font-family:cjMedium;src:url(./font/NOTOSANSCJKKR-MEDIUM.OTF);}
+@font-face{font-family:cjBold;src:url(./font/NOTOSANSCJKKR-BOLD.OTF);}
+
+body{margin-top:140px;margin:0;font-family:cjMedium;color:#333333;}
+div{float:left;width:100%;height:100%;position:relative;-webkit-transform: translate3d(0,0,0);}
+h{font-weight:700;font-size:1.3rem;margin-left:5%;float:right;margin-top:35px;}
+h2{font-family:cjBold;color:#00b2fc;font-size: 2rem;}
+h3{line-height: 0;}
+.weys_text{float:left;width:48%;text-align: right;line-height:2.5;margin-top:5%;}
+.weys_feature{width:40%;margin-left:50px;margin-top:350px;line-height: 2;min-width: 350px;height:550px;}
+#div1 {
+  background-size: 100%;
+  background-image: url("./img/main_IMG2.png");
+  background-repeat: no-repeat;
+  min-width: 1100px;
+}
+#slider {
+  position: relative;
+  overflow: hidden;
+  margin: 20px auto 0 auto;
+  border-radius: 4px;
+}
+
+#slider ul {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  height: 200px;
+  list-style: none;
+}
+
+#slider ul li {
+  position: relative;
+  display: block;
+  float: left;
+  margin: 0;
+  padding: 0;
+  width: 750px;
+  height: 500px;
+  background: #ccc;
+  text-align: center;
+  line-height: 500px;
+  margin-right:0.5%;
+}
+
+a.control_prev, a.control_next {
+  position: absolute;
+  top: 40%;
+  z-index: 999;
+  display: block;
+  padding: 4% 2%;
+  width: auto;
+  height: auto;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 18px;
+  opacity: 0.8;
+  cursor: pointer;
+}
+
+a.control_prev:hover, a.control_next:hover {
+  opacity: 1;
+  -webkit-transition: all 0.2s ease;
+}
+
+a.control_prev {
+  border-radius: 0 2px 2px 0;
+}
+
+a.control_next {
+  right: 0;
+  border-radius: 2px 0 0 2px;
+}
+.cafe{height:170px;margin-left:11%;}
+.cafe_title{font-size:20;font-weight:500;display: inline-block;border-bottom: 5px solid #00b2fc;margin: 0;}
+
+.footer{margin-left:100px; margin-top:50px;width:500px;height:100px;border-top:1px solid white;}
+.footer_text{width:240px;color:white;margin-top:5px;}
+.footer_logo{text-align: center;color:white;font-size:10;height:185px;}
+ a:link { color: white; text-decoration: none;}
+ a:visited { color: black; text-decoration: none;}
+ a:hover { color: blue; text-decoration: underline;}
+
+</style>
+</head>
+
+<body>
+<div style="top:0;position:fixed; height:100px; font-family:cjBold;background-color:rgba(255,255,255,0.7);z-index: 10000;min-width: 650px;">
+<img style="margin-top:28px;margin-left:60px;" width="100px;" src="./img/ic_logo_login.png">
+<h style="cursor:pointer;margin-right:60px;" onClick="fnMove('4')">FACEBOOK</h>
+<h style="cursor:pointer;" onClick="fnMove('3')">CONTACT</h>
+<h style="cursor:pointer;" onClick="fnMove('2')">FEATURE</h>
+<h style="cursor:pointer;" onClick="fnMove('1')">WEYS</h>
+</div>
+
+<div id="div1" style="position:fixed;z-index:10;margin-top:100px;color: white;">
+	<img style="float:left;margin-top:10%;margin-left:8%;margin-right:12%;" width="40%" src="./img/maintext.png">
+	<div class="weys_text" style="font-family:cjDediLignt;">
+		<img style="margin-bottom:2%;" src="./img/bar.png"><br>
+		환전 수수료를 없앴습니다.<br>
+		국내 최초/국내 유일 P2P 환전 핀테크입니다.<br>
+		소액 외화는 포인트로 바꿔 사용 할 수 있습니다.<br>
+		원하는 시간, 장소에서 맞춤 직거래하세요.<br>
+		O2O 오프라인 환전카페로 방문하세요.<br>
+		환전을 통한 스마트 재테크가 실현됩니다.<br>
+		<img onclick="location.href='https://itunes.apple.com/kr/app/weys-%EC%88%98%EC%88%98%EB%A3%8C-%EC%97%86%EB%8A%94-%ED%99%98%EC%A0%84/id983091615?mt=8'" style="cursor:pointer;margin-top:4%;" src="./img/app_store.png">
+		<img onclick="location.href='https://play.google.com/store/apps/details?id=i4unetworks.weys'" style="cursor:pointer;margin-top:4%;" src="./img/google_store.png"><br>
+	</div>	
+</div>
+<div id="div2" style="margin-top:1000px;z-index: 100;position:sticky;background-color: white;height:2700px;">
+	<img style="float:left;margin-top:20px;margin-left:10%;max-width: 510px;" src="./img/iphone_01.png">
+	<div class="weys_feature">
+		<h2>개인간 직거래 환전</h2>
+		원하는 외화와 지역을 선택하여 거래 내용을 확인하세요.<br>
+		상대방과 채팅으로 세부적인 조건을 협의하세요.<br>
+		기축통화 외에도 다양한 통화가 거래됩니다.<br>
+	</div>
+	<img style="float:left;margin-top:20px;margin-left:10%;max-width: 510px;" src="./img/iphone_02.png">
+	<div class="weys_feature">
+		<h2>WEYS ZERO 멤버십</h2>
+		멤버십 가입 후 1년간 환전 수수료 ZERO 입니다.<br>
+		거래 당일 시간 기준 매매기준율로 환전합니다.<br>
+		누적 환전 금액 1,000만원까지 횟수에 상관없이 환전 가능합니다.<br>
+		환전 한도 증액과 기간 연장도 가능합니다.<br>
+	</div>
+	<img style="float:left;margin-top:20px;margin-left:10%;max-width: 510px;" src="./img/iphone_03.png">
+	<div class="weys_feature">
+		<h2>WEYS COIN 포인트</h2>
+		사용하고 남은 외화 동전을 WEYS COIN 포인트로 바꾸세요.<br>
+		포인트로 다양한 기프티콘을 구매하세요.<br>
+		외화 동전은 시중 은행에서 환전이 어렵거나 50% 이상의 수수료가 발생합니다.<br>
+	</div>
+</div>
+<div id="div3" style="z-index: 100;position:sticky;background-color: white; height:1200px;">
+	<div class="cafe">
+		<p class="cafe_title">WEYS 환전 카페 논현점</p>
+		<p style="font-family:cjDediLignt;background-image:url('./img/location.png');background-repeat: no-repeat;line-height:1.4;padding-left: 30px;">서울특별시 강남구 언주로 147길 36 설봉빌딩</p>
+		<p style="font-family:cjDediLignt;background-image:url('./img/time.png');background-repeat: no-repeat;line-height:1.4;padding-left: 30px;">AM 08:30 ~ PM 08:00</p>
+		<p style="font-family:cjDediLignt;background-image:url('./img/tel.png');background-repeat: no-repeat;line-height:1.4;padding-left: 30px;">02.6357.8375</p>
+	</div>
+	<div id="slider">
+		<a href="#" class="control_next"><img src="./img/R_icon.png"></a>
+		<a href="#" class="control_prev" style="margin-left:10px;"><img src="./img/L_icon.png"></a>
+		 <ul>
+			<li><img src="./img/01.png"></li>
+			<li><img src="./img/02.png"></li>
+			<li><img src="./img/03.png"></li>
+			<li><img src="./img/04.png"></li>
+			<li><img src="./img/05.png"></li>
+		</ul>  
+	</div>
+	<div id="map" style="margin-top:30px;margin-left:10%;width:80%;height:400px;"></div>
+</div>
+
+<div style="background-color: #00b2fc;height:340px;width:100%;position:sticky;z-index: 100;">
+	<div class="footer">
+		<div class="footer_text">
+			<h3>Contact</h3>
+			<p style="font-size:13"><a href="mailto:mobile@i4u.kr">mobile@i4u.kr</a> / 070.8767.7893</p>
+			<p style="font-size:13">사업자등록번호 211-88-50700</p>
+		</div>
+		<div class="footer_text" style="width:260px;">
+			<h3>Address</h3>
+			<p style="font-size:13">서울특별시 강남구 언주로 147길 36 설봉빌딩</p>
+			<p style="font-size:13">(주)아이포유웍스 대표 조은용</p>
+		</div>
+	</div>
+	<div class="footer_logo">
+		<img style="margin-top:50px;margin-bottom:20px;" src="./img/footer_logo.png"><br>
+		ⓒCOPYRIGHT I4U WORKS, INC. ALL RIGHTS RESERVED.
+	</div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.greit.weys.exc.ExcDao">
+	
+	<!-- 특정 가장 최근 환율 정보 리스트 가져오기  -->
+	<select id="selectExchange" resultType="map">
+	/* selectExchange */
+		SELECT
+			BASIC_RATE basicRate
+			, DATE_FORMAT(DTTM, '%Y년 %m월 %d일 %H:%i') dttm
+		FROM EXCHANGE_RATE
+		WHERE UNIT=#{unit}
+		AND DTTM IN (
+			SELECT 
+				MAX(DTTM)
+			FROM EXCHANGE_RATE
+		)
+		UNION ALL
+		SELECT
+			BASIC_RATE basicRate
+			, DATE_FORMAT(DTTM, '%Y년 %m월 %d일 %H:%i') dttm
+		FROM EXCHANGE_RATE
+		WHERE UNIT=#{unit}
+		AND DTTM IN (
+			SELECT 
+				MAX(E.DTTM)
+			FROM EXCHANGE_RATE E
+			,(SELECT
+				DATE_FORMAT(MAX(DTTM), '%Y.%m.%d') DTTM
+			FROM EXCHANGE_RATE) R
+			WHERE E.DTTM &lt; R.DTTM
+		)
+		ORDER BY DTTM DESC
+		LIMIT 2
+	</select>
+	
+	<!-- 특정 가장 최근 환율 정보 리스트 가져오기  -->
+	<select id="selectExchangeList" resultType="map">
+	/* selectExchangeList */
+		SELECT
+			BASIC_RATE basicRate
+			, DATE_FORMAT(DTTM, '%Y.%m.%d %H:%i') dttm
+		FROM EXCHANGE_RATE
+		WHERE UNIT = #{unit}
+			AND DTTM BETWEEN #{startDt} AND #{endDt}
+		ORDER BY DTTM DESC
+	</select>
+	
+	<!-- 특정 가장 최근 환율 정보 리스트 가져오기  -->
+	<select id="selectExchangeListForMonth" resultType="map">
+	/* selectExchangeListForMonth */
+		SELECT
+			BASIC_RATE basicRate
+			, DATE_FORMAT(DTTM, '%Y.%m.%d') dttm
+		FROM EXCHANGE_RATE
+		WHERE DTTM IN (
+			SELECT
+				MAX(DTTM)
+			FROM EXCHANGE_RATE
+			WHERE UNIT = #{unit}
+				AND DTTM &lt; #{endDt}
+			GROUP BY DATE_FORMAT(DTTM, '%Y.%m.%d')
+		)
+			AND UNIT = #{unit}
+		ORDER BY DTTM DESC
+		LIMIT #{limit}
+	</select>
+	
+	<!-- 계산 내역 저장 -->
+	<insert id="insertCalcLog">
+	/* insertCalcLog */
+		INSERT INTO CALC_LOG(
+			USR_ID
+			, UNIT
+			, AMNT
+			, REG_DTTM
+		) VALUES (
+			#{usrId}
+			, #{unit}
+			, #{amnt}
+			, NOW()
+		)
+	</insert>
+	
+	<!-- 특정 가장 최근 환율 정보 리스트 가져오기  -->
+	<select id="selectMainExchangeList" resultType="map">
+	/* selectMainExchangeList */
+		SELECT
+			E.UNIT unit
+			, E.BASIC_RATE basicRate
+			, Y.BASIC_RATE yRate
+			, E.DTTM dttm
+			, U.UNIT_NM unitNm
+		FROM EXCHANGE_RATE E
+		INNER JOIN UNIT U ON E.UNIT = U.UNIT_CD
+		INNER JOIN (
+			SELECT
+				UNIT
+				, BASIC_RATE
+			FROM EXCHANGE_RATE
+			WHERE DTTM = (SELECT MAX(DTTM) FROM EXCHANGE_RATE WHERE DTTM &lt; CONCAT(#{dt}, ' 23:59:59'))
+				AND UNIT IN (
+					SELECT
+						UNIT_CD
+					FROM UNIT
+					WHERE 1=1 <if test='type == "M"'>AND RSV_ST = 'Y'</if>)) Y ON E.UNIT = Y.UNIT
+		WHERE E.DTTM = (SELECT MAX(DTTM) FROM EXCHANGE_RATE)
+			AND E.UNIT IN (
+				SELECT
+					UNIT_CD
+				FROM UNIT
+				WHERE 1=1
+					<if test='type == "M"'>
+					AND RSV_ST = 'Y'
+					</if>)
+		ORDER BY U.RSV_ST DESC, U.UNIT_SEQ
+		<if test='type == "M"'>
+		LIMIT 3
+		</if>
+	</select>
+	
+</mapper>

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="UTF-8">
+<head>
+<link rel="icon" href="./img/favicon.png">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes"> 
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="./js/jquery.fullPage.css" />
+<script type="text/javascript" src="./js/jquery.fullPage.js"></script>
+<script>
+var delayTime = 12000;
+var interval;
+
+    var widths = $('.exchange_rate').width();
+    $('#slider ul li').css('width', widths + 'px');
+
+$(function(){
+
+        display_data();
+	$('#fullpage').fullpage({
+              sectionsColor: ['#00b2fc', '#4BBFC3', '#7BAABE', 'whitesmoke', '#ccddff'],
+              anchors: ['firstPage', 'secondPage', '3rdPage', '4thpage', 'lastPage'],
+              menu: '#menu',
+    });
+
+    var slideCount = $('#slider ul li').length;
+    var slideWidth = $('#slider ul li').width();
+    var slideHeight = $('#slider ul li').height();
+    var sliderUlWidth = slideCount * slideWidth;
+    
+    $('#slider').css({ width: '100%', height: '100%' });
+    
+    $('#slider ul').css({ width: sliderUlWidth, marginLeft: - slideWidth });
+    
+    $('#slider ul li:last-child').prependTo('#slider ul');
+
+    function moveLeft() {
+        $('#slider ul').animate({
+            left: + slideWidth
+        }, 200, function () {
+            $('#slider ul li:last-child').prependTo('#slider ul');
+            $('#slider ul').css('left', '');
+        });
+    };
+
+    function moveRight() {
+        $('#slider ul').animate({
+            left: - slideWidth
+        }, 200, function () {
+            $('#slider ul li:first-child').appendTo('#slider ul');
+            $('#slider ul').css('left', '');
+        });
+    };
+
+    $('a.control_prev').click(function (e) {
+        e.preventDefault();
+        moveLeft();
+    });
+
+    $('a.control_next').click(function (e) {
+        e.preventDefault();
+        moveRight();
+    });
+
+    interval = setInterval(slide_trigger, delayTime);
+    interval1 = setInterval(function(){
+        moveRight();
+    }, 5000);
+   interval2 = setInterval(function(){
+        display_data();
+    }, 300000);
+});
+
+function display_data(){
+    $.ajax({
+        type:"GET",
+        url:"/weys/display",
+        success : successResult,
+        error : errorResult
+    });
+}
+
+function successResult(result){
+    var dttm = result.dttm;
+    var list = result.resultList;
+
+    $('#title_dttm').html(dttm);
+
+    for(i=0 ; i<list.length ; i++){
+        var unit = list[i].UNIT;
+        var basicRate = numberWithCommas(list[i].BASIC_RATE);
+        var cashBuy = numberWithCommas(list[i].CASH_BUY);
+        var cashSell = numberWithCommas(list[i].CASH_SELL);
+
+        if(unit == 'USD'){
+            $('#usd_rate').html(basicRate);
+            $('#usd_buy').html(cashBuy);
+            $('#usd_sell').html(cashSell);
+        } else if(unit == 'EUR'){
+            $('#eur_rate').html(basicRate);
+            $('#eur_buy').html(cashBuy);
+            $('#eur_sell').html(cashSell);
+        }  else if(unit == 'JPY'){
+            $('#jpy_rate').html(basicRate);
+            $('#jpy_buy').html(cashBuy);
+            $('#jpy_sell').html(cashSell);
+        }  else if(unit == 'CNY'){
+            $('#cny_rate').html(basicRate);
+            $('#cny_buy').html(cashBuy);
+            $('#cny_sell').html(cashSell);
+        } 
+    }
+}
+
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+function errorResult(result){
+    
+}
+
+function slide_trigger(){
+    var slide_id = $('#section1').find('.active').attr('id');
+
+    if(slide_id == 'slide4'){
+        clearInterval(interval);
+        delayTime = 60000;
+        interval = setInterval(slide_trigger, delayTime);
+    } else {
+        var img = $('#kakao');
+        if(slide_id == 'slide1'){
+            img.attr('src', './img/inside_full1.gif');
+        } else {
+            img.attr('src', '');
+        }
+        clearInterval(interval);
+        delayTime = 12000;
+        interval = setInterval(slide_trigger, delayTime);
+    }
+    $('.fp-next').trigger("click");
+    
+}
+	
+</script>
+<style type="text/css">
+@font-face{font-family:cjDediLignt;src:url(./font/NOTOSANSCJKKR-DEMILIGHT.OTF);}
+@font-face{font-family:cjMedium;src:url(./font/NOTOSANSCJKKR-MEDIUM.OTF);}
+@font-face{font-family:cjBold;src:url(./font/NOTOSANSCJKKR-BOLD.OTF);}
+@font-face{font-family:notoSans;src:url(./font/NANUMSQUAREEB.OTF);}
+h1{text-align: center;}
+.exchange_rate{width:100%;height:74%;background-color: #eaeaea;}
+.mini_display{width:100%;height:26%;background-color: green;}
+
+#slider {position: relative;overflow: hidden;margin: auto;}
+#slider ul {position: relative;margin: 0;padding: 0;height: 200px;list-style: none;}
+#slider ul li {position: relative;display: block;float: left;margin: 0;padding: 0;width: 1200px;height: 500px;background: #ccc;text-align: center;line-height: 500px;}
+a.control_prev, a.control_next {display: none;}
+
+.rate_title{background-color: #00b2fc;height:14%;}
+.rate_body{background-color: white;height:21%;border-bottom:1px solid #dcdddd;padding-left:4%;box-sizing: border-box;}
+
+.title_img{width:21%;height:100%;display: flex;align-items: center;margin-left:4%;float: left;}
+.title_text{font-family:cjMedium;color: white;width: 72.5%;float: left;text-align: right;font-size: 3.5vw;height:100%;}
+.title_text p{margin:0;}
+.country_flag{height:100%;width:45%;float:left;}
+.exchange_body{height:100%;width:55%;float:left;}
+
+.country_img{height:100%;width:40%;float:left;display:flex;align-items: center;}
+.country_text{font-family:cjBold;height:100%;width:35%;float:left;padding-left: 15px;color:#3f3f3f;}
+.country_text_c{width:100%;height:50%;margin:0;display:flex;align-items:flex-end;font-size: 3.5vw;}
+.country_text_t{width:100%;margin:0;font-size: 2.8vw;float:left;}
+.country_text_j{margin: 0;height: 50%;float: left;display: flex;align-items: flex-end;}
+
+.weys_text{height: 65%;display: flex;align-items: flex-end;border-bottom: 1vw solid #eaeaea;line-height: 2.5;}
+.weys_font{font-family:cjBold;width: 20%;float: left;color:#00b2fc;font-size: 3vw;}
+.money_font{font-family: notoSans;width: 60%;float: left;text-align: right;font-weight: 700;font-size: 10vw;line-height: 1;color: #00b2fc;}
+.money_img{width: 10%;float: left; margin-left:4%;line-height: 2.4;}
+
+.bank_text{font-size: 2.7vw;height:20%;display: flex;align-items: center;}
+.bank_t{font-family:cjMedium;color:#3f3f3f;float:left;width:20%;}
+.buy_text{font-family:cjMedium;color:#0037b2;float:left;width:15%;text-align:center;}
+.buy_num{font-family:notoSans;color:#0037b2;float:left;width:24%;margin-top: 1.1%;}
+.sell_text{font-family:cjMedium;color:#e50000;float:left;width:16%;text-align:center;}
+.sell_num{font-family:notoSans;color:#e50000;float:left;width:25%;margin-top: 1.1%;}
+</style>
+</head>
+
+<body>
+<div id="fullpage">
+    
+    <div class="section" id="section1">
+        <div class="slide" id="slide1">
+            <div class="exchange_rate">
+                <div class="rate_title">
+                    <div class="title_img">
+                        <img width="100%" src="./img/weys_display.png">
+                    </div>
+                    <div class="title_text">
+                        <div style="height:60%;display: flex;align-items: flex-end;"><p style="width:100%;" id="title_cnt"></p></div>
+                        <div id="title_dttm">2017.07.24 10:11</div>
+                    </div>
+                </div>
+                <div class="rate_body">
+                    <div class="country_flag">
+                        <div class="country_img"><img width="100%" src="./img/USA.png"></div>
+                        <div class="country_text">
+                            <p class="country_text_c">USA</p>
+                            <p class="country_text_t">달러</p>
+                        </div>
+                    </div>
+                    <div class="exchange_body">
+                        <div class="weys_text">
+                            <div class="weys_font">WEYS</div>
+                            <div class="money_font" id="usd_rate">1,230</div>
+                            <div class="money_img"><img width="100%" src="./img/krw.png"></div>
+                        </div>
+                        <div class="bank_text">
+                            <div class="bank_t">은행에서</div>
+                            <div class="buy_text">BUY</div>
+                            <div class="buy_num" id="usd_buy">1,470.41</div>
+                            <div class="sell_text">SELL</div>
+                            <div class="sell_num" id="usd_sell">1,390.81</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="rate_body">
+                    <div class="country_flag">
+                        <div class="country_img"><img width="100%" src="./img/EURO.png"></div>
+                        <div class="country_text">
+                            <p class="country_text_c">EUR</p>
+                            <p class="country_text_t">유로</p>
+                        </div>
+                    </div>
+                    <div class="exchange_body">
+                        <div class="weys_text">
+                            <div class="weys_font">WEYS</div>
+                            <div class="money_font" id="eur_rate">1,230</div>
+                            <div class="money_img"><img width="100%" src="./img/krw.png"></div>
+                        </div>
+                        <div class="bank_text">
+                            <div class="bank_t">은행에서</div>
+                            <div class="buy_text">BUY</div>
+                            <div class="buy_num" id="eur_buy">1,470.41</div>
+                            <div class="sell_text">SELL</div>
+                            <div class="sell_num" id="eur_sell">1,390.81</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="rate_body">
+                    <div class="country_flag">
+                        <div class="country_img"><img width="100%" src="./img/JP.png"></div>
+                        <div class="country_text">
+                            <p class="country_text_j" style="font-size: 3.5vw;">JPY</p><p class="country_text_j" style="font-size: 2.8vw;">(100)</p>
+                            <p class="country_text_t">엔</p>
+                        </div>
+                    </div>
+                    <div class="exchange_body">
+                        <div class="weys_text">
+                            <div class="weys_font">WEYS</div>
+                            <div class="money_font" id="jpy_rate">1,230</div>
+                            <div class="money_img"><img width="100%" src="./img/krw.png"></div>
+                        </div>
+                        <div class="bank_text">
+                            <div class="bank_t">은행에서</div>
+                            <div class="buy_text">BUY</div>
+                            <div class="buy_num" id="jpy_buy">1,470.41</div>
+                            <div class="sell_text">SELL</div>
+                            <div class="sell_num" id="jpy_sell">1,390.81</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="rate_body">
+                    <div class="country_flag">
+                        <div class="country_img"><img width="100%" src="./img/China.png"></div>
+                        <div class="country_text">
+                            <p class="country_text_c">CNY</p>
+                            <p class="country_text_t">위안</p>
+                        </div>
+                    </div>
+                    <div class="exchange_body">
+                        <div class="weys_text">
+                            <div class="weys_font">WEYS</div>
+                            <div class="money_font" id="cny_rate">1,230</div>
+                            <div class="money_img"><img width="100%" src="./img/krw.png"></div>
+                        </div>
+                        <div class="bank_text">
+                            <div class="bank_t">은행에서</div>
+                            <div class="buy_text">BUY</div>
+                            <div class="buy_num" id="cny_buy">1,470.41</div>
+                            <div class="sell_text">SELL</div>
+                            <div class="sell_num" id="cny_sell">1,390.81</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mini_display">
+                <div id="slider">
+                    <a href="#" class="control_next"><img src="./img/R_icon.png"></a>
+                    <a href="#" class="control_prev"><img src="./img/L_icon.png"></a>
+                     <ul>
+                        <li><img width="100%" src="./img/inside_bottom1.png"></li>
+                        <li><img width="100%" src="./img/inside_bottom2.jpg"></li>
+                        <li><img width="100%" src="./img/inside_bottom3.jpg"></li>
+                    </ul>  
+                </div>
+            </div>
+        </div>
+        <div class="slide" id="slide2">
+            <img id="kakao" width="100%" src="./img/inside_full1.gif">
+        </div>
+        <div class="slide" id="slide3">
+            <img width="100%" src="./img/exchange_sign_in.png">
+        </div>
+        <div class="slide" id="slide4">
+            <img width="100%" src="./img/exchange_sign2_in.png">
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

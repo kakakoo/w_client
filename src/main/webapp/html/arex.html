@@ -1,0 +1,356 @@
+<!doctype html>
+<!--Quite a few clients strip your Doctype out, and some even apply their own. Many clients do honor your doctype and it can make things much easier if you can validate constantly against a Doctype.-->
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+<title>웨이즈 이용 가이드</title>
+<style type="text/css">
+body {
+	margin: 0;
+	padding: 0;
+	background: #ffffff;
+}
+body, table, td, p, a, li, blockquote {
+	-webkit-text-size-adjust: none!important;
+	font-family: sans-serif;
+	font-style: normal;
+	font-weight: 400;
+}
+	#wrap {
+	}
+	.header { position: relative; }
+	.top_title { width: 100%; }
+
+	.content { padding-top: 0px; }
+	.btn_kakao {
+		margin: 0 auto;
+		width: 200px; 
+		padding: 15px 0px;
+		background: #fbe300; 
+		border-radius: 7px;
+		text-align: center;
+	}
+	.invite_title{
+		font-size: 13pt; color: #442121; font-weight: 900;
+	}
+	.content { padding: 0px; }
+	.content p { padding: 30px 30px 0px 30px; font-size: 11pt; color: #485465; line-height: 22pt; letter-spacing: -1px; }
+	.content img { width: 100%; margin: 30px 0px 30px 0px; }
+	.content b { color: #121212; font-weight: 800; }
+	.kakao_logo { height: 20px; vertical-align: text-bottom; margin-right: 10px; }
+	.stamp { padding: 50px 30px 10px 30px; text-align: center; }
+	.invite_history { width: 140px; }
+	.stamp_object { text-align: center; margin: 2%; width: 26%; float: left;}
+	.stamp_object :first-child { padding-left: 17%; }
+	.stamp_object img {width: 100%;}
+	.invite_desc {
+		clear: left;
+		margin: 0 auto;
+		padding-top: 10px;
+		text-align: center;
+		font-size: 11pt; color: #485465;
+	}
+	.footer {
+		width: 100%;
+		background: #fff;
+		margin-top: 50px;
+		padding: 50px 00px;
+		
+	}
+	.service-btn1 { 
+		position: relative; 
+		left: 5%;
+		width: 90%; 
+		padding: 15px 0px;
+		margin-bottom: 20px;
+		background: #fabf3d; 
+		border-radius: 7px;
+		font-weight: 600;
+		color: #fff;
+		text-align: center;
+		-webkit-box-shadow: 0px 0px 61px -6px rgba(0,0,0,0.2);
+		-moz-box-shadow: 0px 0px 61px -6px rgba(0,0,0,0.2);
+		box-shadow: 0px 0px 61px -6px rgba(0,0,0,0.2);
+	}
+	.service-btn2 { 
+		position: relative; 
+		left: 5%;
+		width: 90%; 
+		padding: 15px 0px;
+		margin-bottom: 20px;
+		background: #0065ff; 
+		border-radius: 7px;
+		font-weight: 600;
+		color: #fff;
+		text-align: center;
+		-webkit-box-shadow: 0px 0px 61px -6px rgba(0,0,0,0.2);
+		-moz-box-shadow: 0px 0px 61px -6px rgba(0,0,0,0.2);
+		box-shadow: 0px 0px 61px -6px rgba(0,0,0,0.2);
+	}
+		/* Style the element that is used to open and close the accordion class */
+p.accordion {
+    color: #444;
+    cursor: pointer;
+    padding: 14px 0px;
+    text-align: left;
+    border-bottom: 1px solid #dce3ed;
+    outline: none;
+    margin: 0px;
+	font-size: 16px;
+	font-weight: 800;
+	margin: 0px 30px;
+	-webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
+/* Add a background color to the accordion if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
+
+/* Unicode character for "plus" sign (+) */
+p.accordion:after {
+    float: right;
+	background-image: url("../resources/img/btn_arrow.png");
+    background-size: 14px 9px;
+    display: inline-block;
+    width: 14px; 
+    height: 9px;
+	margin-top: 10px;
+    content:"";
+}
+	p.accordion.active { color: #0065ff; border-bottom: 0px solid #dce3ed;}
+	
+/* Unicode character for "minus" sign (-) */
+p.accordion.active:after {
+    float: right;
+	background-image: url("../resources/img/btn_arrow_up.png");
+    background-size: 14px 9px;
+    display: inline-block;
+    width: 14px; 
+    height: 9px;
+    content:"";
+}
+	
+	div.panel {
+    padding: 0 30px;
+    background-color: #EDF1F4;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+	border-top: 1px solid #dce3ed;
+	border-bottom: 1px solid #dce3ed;
+}
+
+div.panel.show {
+    opacity: 1;
+    max-height: 1000px; /* Whatever you like, as long as its more than the height of the content (on all screen sizes) */
+}
+
+/* Style the element that is used for the panel class */
+	table {border-collapse: collapse; border: 1px solid #dce3ed; margin-bottom: 30px; }
+	
+	table th {font-size: 11px; padding: 10px; background: #fff;}
+	table td {font-size: 11px; padding: 10px; background: #fff;}
+</style>
+<script>
+document.addEventListener("DOMContentLoaded", function(event) { 
+
+
+var acc = document.getElementsByClassName("accordion");
+var panel = document.getElementsByClassName('panel');
+
+for (var i = 0; i < acc.length; i++) {
+    acc[i].onclick = function() {
+        var setClasses = !this.classList.contains('active');
+        setClass(acc, 'active', 'remove');
+        setClass(panel, 'show', 'remove');
+
+        if (setClasses) {
+            this.classList.toggle("active");
+            this.nextElementSibling.classList.toggle("show");
+        }
+    }
+}
+
+function setClass(els, className, fnName) {
+    for (var i = 0; i < els.length; i++) {
+        els[i].classList[fnName](className);
+    }
+}
+
+});
+</script>
+</head>
+<body>
+	<div id="wrap">
+		<div class="header">
+			<img width="100%" class="top_title" src="../resources/img/arex.png">
+		</div>
+		<div class="content">
+			<div style="padding: 30px; font-size: 22px; font-weight: 900; color: #0049dd;">💁🏻‍♂️ 외화 수령처 안내</div>
+<!-- 			<p class="accordion">인천공항 1터미널 3층</p> -->
+<!-- 			<div class="panel"> -->
+<!-- 				<img width="100%" class="top_title" src="../resources/img/map_icn_t1_3f1.png"> -->
+<!-- 				<table width="100%"> -->
+<!-- 				  <tbody> -->
+<!-- 					<tr> -->
+<!-- 					  <th scope="row" width="20%">위치</th> -->
+<!-- 					  <td>인천국제공항 제 1터미널 3층 출국층 N카운터 부근(14번 출입구 앞)</td> -->
+<!-- 					</tr> -->
+<!-- 					<tr> -->
+<!-- 					  <th scope="row" width="20%">영업시간</th> -->
+<!-- 					  <td>매일 오전 5시 ~ 오후 9시 (9/30 종료)</td> -->
+<!-- 					</tr> -->
+<!-- 					<tr> -->
+<!-- 					  <th scope="row" width="20%">비고</th> -->
+<!-- 					  <td><b>본 지점은 부스가 아닌 담당자 직접 배송 지역입니다.</b> 해당 위치 도착시 미리 안내된 배송담당자에게 연락주시면 즉시 수령이 가능합니다.</td> -->
+<!-- 					</tr> -->
+<!-- 				  </tbody> -->
+<!-- 				</table> -->
+<!-- 			</div> -->
+			
+			<p class="accordion">인천공항 T1 3층 수하물보관소</p>
+			<div class="panel">
+				<img width="100%" class="top_title" src="../resources/img/map_icn_t1_3f_hanjin.png">
+				<table width="100%">
+				  <tbody>
+					<tr>
+					  <th scope="row" width="20%">위치</th>
+					  <td>인천국제공항 제 1터미널 3층 M카운터 부근</td>
+					</tr>
+					<tr>
+					  <th scope="row" width="20%">영업시간</th>
+					  <td>매일 24시간(오전 1시~2시 휴식시간)</td>
+					</tr>
+					<tr>
+					  <th scope="row" width="20%">비고</th>
+					  <td><b>3층 출국층 M카운터 부근에 위치한 수하물보관소에 방문하여 수령하시면 됩니다.(혼잡 시간의 경우 약간의 대기시간이 발생할 수 있습니다.)</td>
+					</tr>
+				  </tbody>
+				</table>
+			</div>
+
+			<p class="accordion">인천공항 T2 3층 수하물보관소</p>
+			<div class="panel">
+				<img width="100%" class="top_title" src="../resources/img/map_icn_t2_3f_hanjin.png">
+				<table width="100%">
+				  <tbody>
+					<tr>
+					  <th scope="row" width="20%">위치</th>
+					  <td>인천국제공항 제 2터미널 3층 H카운터 부근</td>
+					</tr>
+					<tr>
+					  <th scope="row" width="20%">영업시간</th>
+					  <td>매일 오전 7시 ~ 오후 10시</td>
+					</tr>
+					<tr>
+					  <th scope="row" width="20%">비고</th>
+					  <td><b>3층 출국층 H카운터 부근에 위치한 수하물보관소에 방문하여 수령하시면 됩니다.(혼잡 시간의 경우 약간의 대기시간이 발생할 수 있습니다.)</td>
+					</tr>
+				  </tbody>
+				</table>
+			</div>
+
+			<p class="accordion">인천공항 1터미널역 트래블스토어(공항철도)</p>
+			<div class="panel">
+				<img width="100%" class="top_title" src="../resources/img/map_icn_t1_b1f1.png">
+				<table width="100%">
+				  <tbody>
+					<tr>
+					  <th scope="row" width="20%">위치</th>
+					  <td>인천공항 1터미널역 지하 1층 공항철도 일반열차 개찰구 옆</td>
+					</tr>
+					<tr>
+					  <th scope="row" width="20%">영업시간</th>
+					  <td>매일 오전 8시 - 오후 9시 30분</td>
+					</tr>
+					<tr>
+					  <th scope="row" width="20%">비고</th>
+					  <td>문의전화: 032-743-0213</td>
+					</tr>
+				  </tbody>
+				</table>
+			</div>
+
+			<p class="accordion">김포공항역 트래블센터(공항철도)</p>
+			<div class="panel">
+				<img width="100%" class="top_title" src="../resources/img/map_gmp.png">
+				<table width="100%">
+				  <tbody>
+					<tr>
+					  <th scope="row" width="20%">위치</th>
+					  <td>김포공항역 지하 1층 공항철도 개찰구 옆(4번 출구 부근)</td>
+					</tr>
+					<tr>
+					  <th scope="row" width="20%">영업시간</th>
+					  <td>매일 오전 9시 ~ 오후 9시</td>
+					</tr>
+					<tr>
+					  <th scope="row" width="20%">비고</th>
+					  <td>문의전화: 02-2665-0211</td>
+					</tr>
+				  </tbody>
+				</table>
+			</div>
+
+			<p class="accordion">홍대입구역 트래블센터(공항철도)</p>
+			<div class="panel">
+				<img width="100%" class="top_title" src="../resources/img/map_hd.png">
+				<table width="100%">
+				  <tbody>
+					<tr>
+					  <th scope="row" width="20%">위치</th>
+					  <td>홍대입구역 지하 2층 공항철도 개찰구 안(5번 출구 부근)</td>
+					</tr>
+					<tr>
+					  <th scope="row" width="20%">영업시간</th>
+					  <td>오전 10시 - 오후 8시 30분</td>
+					</tr>
+					<tr>
+					  <th scope="row" width="20%">비고</th>
+					  <td>해당 지점은 개찰구 안쪽에 위치하고 있습니다. 개찰구 인터폰을 통해 "트래블센터에 왔습니다"라고 말씀하시면 지하철 요금 지불없이 입장이 가능합니다.<br>문의전화: 02-334-0211</td>
+					</tr>
+				  </tbody>
+				</table>
+			</div>
+			
+<!-- 			<p class="accordion">주소지 배송</p> -->
+<!-- 			<div class="panel"> -->
+<!-- 				<img width="100%" class="top_title" src="../resources/img/map_delivery.png"> -->
+<!-- 				<table width="100%"> -->
+<!-- 				  <tbody> -->
+<!-- 					<tr> -->
+<!-- 					  <th scope="row" width="20%">배송지역</th> -->
+<!-- 					  <td>서울 강남구 논현 1동, 논현 2동, 삼성 1동, 삼성 2동, 신사동, 압구정동, 역삼 1동, 역삼 2동, 청담동</td> -->
+<!-- 					</tr> -->
+<!-- 					<tr> -->
+<!-- 					  <th scope="row" width="20%">배송시간</th> -->
+<!-- 					  <td>평일 오전 10시 - 오후 10시(주말 및 공휴일 휴무)</td> -->
+<!-- 					</tr> -->
+<!-- 					<tr> -->
+<!-- 					  <th scope="row" width="20%">비고</th> -->
+<!-- 					  <td><b>라이더가 직접 배송하는 지역입니다.</b> 예약자 본인이 해당 주소지에 없는 경우 수령이 불가능합니다.</td> -->
+<!-- 					</tr> -->
+<!-- 				  </tbody> -->
+<!-- 				</table> -->
+<!-- 			</div> -->
+			<div style="margin: 30px 0px;"></div>
+			<div class="service-btn2" onclick="openRsv()">
+				<span>환전 예약하기</span>
+			</div>
+		</div>
+		<div class="footer">
+			<div style="padding: 0px 30px 20px 30px; font-size: 13pt; font-weight: 500;">유의사항</div>
+			<div style="padding: 0px 30px 20px 30px; font-size: 11pt; color: #485465;">
+			ᆞ상기 수령처는 100% 예약제로 운영되며, 현장에서의 환전 및 변경은 일체 불가합니다.<br /><br />ᆞ상기 수령처의 영업시간은 당사 및 제휴사의 사정에 따라 변경될 수 있으며 사전 고지합니다.<br /><br />ᆞ상기 수령처를 지정한 환전 예약시 소정의 위탁수수료가 발생할 수 있습니다.<br /><br />ᆞ상기 수령처의 영업시간중 미수령시 소정의 취소 위약금이 발생할 수 있습니다.
+			</div>
+		</div>
+	</div>
+</body>
+
+<script type="text/javascript">
+
+function openRsv(){
+	alert('rsv_USD');
+}
+</script>
+
+</html>

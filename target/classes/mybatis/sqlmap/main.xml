@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.greit.weys.main.MainDao">
+	
+	<!-- 메인 예약 정보 -->
+	<select id="selectMainRsvList" resultType="mainRsvVO">
+	/* selectMainRsvList */
+		SELECT
+			R.RSV_ID
+			, CONCAT(DATE_FORMAT(R.RSV_DT, '%y.%m.%d'), ' ', R.RSV_TM) RSV_DT
+			, CONCAT(R.UNIT, ' ', FORMAT(R.RSV_AMNT, 0)) RSV_AMNT
+			, CASE WHEN R.RSV_FORM = 'R' THEN S.STORE_NM ELSE SUBSTRING_INDEX(SUBSTRING_INDEX(CAST(AES_DECRYPT(R.RSV_ADDR, SHA2('GREiT',512)) AS CHAR), ' ', 3), ' ', -1) END STORE_NM
+			, R.RSV_ST
+			, R.RSV_FORM
+		FROM RSV R, STORE S
+		WHERE R.USR_ID = #{usrId}
+			AND R.RSV_ST IN ('S', 'R', 'F', 'CR', 'CF')
+			AND R.STORE_ID = S.STORE_ID
+		ORDER BY R.RSV_DT DESC
+		LIMIT 5
+	</select>
+	
+	<!-- 메인 예약 정보 -->
+	<select id="selectMainRsvCnt" resultType="int">
+	/* selectMainRsvCnt */
+		SELECT
+			COUNT(RSV_ID)
+		FROM RSV
+		WHERE USR_ID = #{value}
+			AND RSV_ST IN ('S', 'R')
+	</select>
+	
+	<!-- 읽지않은 알람수 -->
+	<select id="selectMainArmCnt" resultType="int">
+	/* selectMainArmCnt */
+		SELECT
+			COUNT(ARM_ID)
+		FROM ALARM
+		WHERE USR_ID = #{value}
+			AND ARM_ST = 'N'
+	</select>
+	
+	<!-- 사용가능 쿠폰 수 -->
+	<select id="selectMainCpnCnt" resultType="int">
+	/* selectMainCpnCnt */
+		SELECT
+			COUNT(COUPON_ID)
+		FROM COUPON_HIST
+		WHERE USR_ID = #{value}
+			AND USE_ST = 'Y'
+			AND DUE_DT &gt;= NOW()
+	</select>
+	
+	<!-- 진행중인 이벤트 수 -->
+	<select id="selectMainEventCnt" resultType="int">
+	/* selectMainEventCnt */
+		SELECT
+			IFNULL(COUNT(E.EVENT_ID), 0)
+		FROM (	
+			SELECT
+				E.EVENT_ID
+				, U.USR_ID
+			FROM EVENT E
+			LEFT OUTER JOIN EVENT_USER U ON E.EVENT_ID = U.EVENT_ID AND U.USR_ID = #{value}
+			WHERE E.EVENT_ST = 'Y'
+				AND E.END_DT &gt;= NOW()
+				AND E.START_DT &lt; NOW()) E
+		WHERE USR_ID IS NULL
+	</select>
+	
+	<!-- 알람 리스트 -->
+	<select id="selectAlarmList" resultType="mainAlarmVO">
+	/* selectAlarmList */
+		SELECT
+			ARM_ID
+			, ARM_TP
+			, ARM_ST
+			, ARM_TITLE
+			, ARM_TARGET
+			, REPLACE(ARM_VAL, 'gVerSion', #{version}) ARM_VAL
+			, DATE_FORMAT(REG_DTTM, '%y.%m.%d') REG_DTTM
+		FROM ALARM
+		WHERE USR_ID = #{usrId}
+			AND ARM_TP IN ('E', 'N', 'I')
+			<if test='pageType == "M"'>
+			AND ARM_ID &lt; #{armId}
+			</if>
+			<if test='pageType == "R"'>
+			AND ARM_ID &gt; #{armId}
+			</if>
+		ORDER BY ARM_ID DESC
+		<if test='pageType == "M" || pageType == ""'>
+		LIMIT 10
+		</if>
+	</select>
+	
+	<!-- 알람 읽음 처리 -->
+	<update id="updateAlarmSt">
+	/* updateAlarmSt */
+		UPDATE ALARM
+			SET ARM_ST = 'Y'
+		WHERE USR_ID = #{value}
+			AND ARM_ST = 'N'
+	</update>
+	
+	<!-- 배너정보 가져오기  -->
+	<select id="selectBannerInfo" resultType="bannerVO">
+	/* selectBannerInfo */
+		SELECT
+			BANNER_ID
+			, BANNER_NM
+			, BANNER_URL
+			, REDIRECT_URL
+			, REDIRECT_APP
+			, REPLACE(REPLACE(TARGET, 'gVerSion', #{rp}), '_USRAK_', #{usrAk}) TARGET
+		FROM BANNER
+		WHERE START_DT &lt;= NOW()
+			AND END_DT &gt;= DATE_FORMAT(NOW(), '%Y.%m.%d')
+			AND BANNER_TP = #{tp}
+		ORDER BY SEQ
+	</select>
+	
+	<!-- 배너정보 가져오기  -->
+	<select id="selectBannerInfoV9" resultType="bannerVO">
+	/* selectBannerInfoV9 */
+		SELECT
+			BANNER_ID
+			, BANNER_NM
+			, BANNER_URL
+			, REDIRECT_URL
+			, REDIRECT_APP
+			, REPLACE(TARGET, 'gVerSion', #{value}) TARGET
+		FROM BANNER
+		WHERE START_DT &lt;= NOW()
+			AND END_DT &gt;= DATE_FORMAT(NOW(), '%Y.%m.%d')
+			AND BANNER_TP = 'A'
+		ORDER BY SEQ
+	</select>
+	
+	<!-- 제휴 배너 리스트 -->
+	<select id="selectCopBnrList" resultType="bannerVO">
+	/* selectCopBnrList */
+		SELECT
+			CB_NM
+			, CB_S_IMG
+			, CB_B_IMG
+			, MODAL_NM
+			, BTN_NM
+			, CB_URL
+		FROM COP_BANNER
+		WHERE CB_ST = 'Y'
+	</select>
+	
+	<!-- 예약 가능 외화 -->
+	<select id="selectRsvUnit" resultType="map">
+	/* selectRsvUnit */
+		SELECT
+			SUBSTRING_INDEX(UNIT_NM, ' ', 1) unitNm
+			, UNIT_CD unitCd
+		FROM UNIT
+		WHERE RSV_ST = 'Y'
+		<if test='tp == "A"'>
+		ORDER BY UNIT_SEQ
+		</if>
+		<if test='tp == "M"'>
+		ORDER BY MAIN_SEQ
+		</if>
+	</select>
+	
+	<!-- 컨텐츠 리스트 -->
+	<select id="selectContInfo" resultType="map">
+	/* selectContInfo */
+		SELECT
+			CONT_ID
+			, CONT_TITLE contTitle
+			, CONT_CTGR contCtgr
+			, LIST_TYPE listType
+		FROM CONT_INFO
+		WHERE NOW() BETWEEN START_DT AND END_DT
+		ORDER BY SEQ
+	</select>
+	
+	<!-- 컨텐츠 리스트 -->
+	<select id="selectContList" resultType="map">
+	/* selectContList */
+		SELECT
+			CL_TITLE clTitle
+			, CL_SUB_TITLE clSubTitle
+			, CL_CTGR clCtgr
+			, CL_COLOR clColor
+			, CL_IMG clImg
+			, CL_URL clUrl
+			, REPLACE(CL_URL, '_USRAK_', #{usrAk}) clUrl
+			, CL_LOGIN_CHK clLoginChk
+			, TITLE_DISPLAY titleDisplay
+		FROM CONT_LIST
+		WHERE CONT_ID = #{contId}
+			AND NOW() BETWEEN START_DT AND END_DT
+		ORDER BY CL_SEQ
+	</select>
+	
+	<!-- 접속로그 등록 -->
+	<insert id="insertUsrLog">
+	/* insertUsrLog */
+		INSERT INTO USER_LOG_CONN (
+			OS
+			<if test='usrId != null'>
+			, USR_ID
+			</if>
+			, CONN_DTTM
+		) VALUES (
+			#{os}
+			<if test='usrId != null'>
+			, #{usrId}
+			</if>
+			, NOW()
+		)
+	</insert>
+	
+	<!-- 메인 타이틀 -->
+	<select id="selectMainTitle" resultType="string">
+	/* selectMainTitle */
+		SELECT
+			CONT1
+		FROM DUMMY_BOX
+		WHERE TYPE = 'MT'
+	</select>
+	
+	<!-- 사용자 ak -->
+	<select id="selectUsrAk" resultType="string">
+	/* selectUsrAk */
+		SELECT
+			USR_AK
+		FROM USER
+		WHERE USR_ID = #{value}
+	</select>
+	
+	<!-- 이벤트 참여유므 확인 -->
+	<select id="selectUsrJoinEvent" resultType="int">
+	/* selectUsrJoinEvent */
+		SELECT
+			COUNT(USR_ID)
+		FROM EVENT_USER
+		WHERE USR_ID = #{usrId}
+			AND EVENT_ID = #{target}
+	</select>
+	
+	<!-- 말풍선 가이드 -->
+	<select id="selectGuideInfo" resultType="map">
+	/* selectGuideInfo */
+		SELECT
+			MGL.LOG_ID
+			, MG.TAB tab
+			, MG.DESC desc
+			, MG.TARGET target
+		FROM MAIN_GUIDE MG, MAIN_GUIDE_LOG MGL
+		WHERE MGL.USR_ID = #{value}
+			AND MGL.LOG_ST = 'Y'
+			AND MGL.END_DT &gt; NOW()
+			AND MGL.MG_ID = MG.MG_ID
+		ORDER BY MG.IMPTANT DESC, MG.PRIORITY
+		LIMIT 1
+	</select>
+	
+	<!-- 말풍선 가이드 업데이트 -->
+	<update id="updateGuideLog">
+	/* updateGuideLog */
+		UPDATE MAIN_GUIDE_LOG
+			SET LOG_ST = 'N'
+		WHERE LOG_ID = #{value}
+	</update>
+	
+</mapper>
